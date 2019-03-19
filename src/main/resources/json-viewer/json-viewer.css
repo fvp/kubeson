@@ -1,0 +1,124 @@
+body {
+    background-color: black;
+    color: #f0810f;
+    margin: 0px;
+    font-family: Verdana;
+    font-size: 15px;
+}
+
+.info {
+	height: 28px;
+	width: 100%;
+	top: 0;
+	background-color: #343638;
+	display: table;
+	position: -webkit-sticky;
+	z-index: 100000;
+}
+
+.centre-align {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+#lineId {
+	display: inline;
+	padding-left: 10px;
+}
+
+#searchCounter {
+	display: inline;
+	padding-left: 13px;
+	color: yellow;
+}
+
+.json-viewer .noborder {
+	border: none;
+}
+
+.highlight {
+	background-color: yellow;
+	color: black;
+}
+
+.json-viewer ul {
+	list-style-type: none;
+	margin: 0;
+	margin: 0 0 0 1px;
+	border-left: 1px solid #404040;
+	padding-left: 1.8em;
+}
+
+.json-viewer .hide {
+	display: none;
+}
+
+.json-viewer ul li .type-string,
+.json-viewer ul li .type-date {
+	color: white;
+}
+
+.json-viewer ul li .type-boolean-true {
+	color: green;
+	font-weight: bold;
+}
+
+.json-viewer ul li .type-boolean-false {
+	color: #e60000;
+	font-weight: bold;
+}
+
+.json-viewer ul li .type-number {
+	color: #90CAF9;
+}
+
+.json-viewer ul li .type-null {
+	color: #90CAF9;
+}
+
+.json-viewer .bracket {
+	color: #e6df44;
+	font-weight: bold;
+}
+
+.json-viewer .colon {
+	color: #e6df44;
+	font-size: 17px;
+}
+
+.json-viewer a.list-link {
+    color: #f0810f;
+	text-decoration: none;
+	position: relative;
+}
+
+.json-viewer a.list-link:before {
+	color: #F44336;
+	content: "\25BC";
+	position: absolute;
+	display: inline-block;
+	width: 1em;
+	left: -1em;
+}
+
+.json-viewer a.list-link.collapsed:before {
+	content: "\25B6";
+}
+
+.json-viewer a.list-link.empty:before {
+	content: "";
+}
+
+.json-viewer .items-ph {
+	font-weight: bold;
+	margin: 0 0.6em;
+	padding: 0 0.4em;
+}
+
+.json-viewer .items-ph-color {
+	color: red;
+}
+
+.json-viewer .items-ph:hover {
+	text-decoration: underline;
+}

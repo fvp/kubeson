@@ -1,0 +1,230 @@
+/* Root */
+.root {
+    -fx-base: rgba(60, 63, 65, 255); // dark
+}
+
+/* Workaround fix JVM bug JDK-8146479 */
+.root:iconified {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal > .thumb,
+.scroll-bar:vertical > .thumb {
+    -fx-color: -fx-hover-base;
+}
+
+/* Context Menu */
+.context-menu {
+    -fx-background-color: -fx-color;
+    -fx-font-size: 13px;
+}
+
+.context-menu .separator:horizontal .line {
+    -fx-border-color: -fx-background transparent transparent transparent;
+    -fx-border-insets: 1 0 0 0;
+}
+
+/* Info Dialog */
+.info-dialog {
+    -fx-font-size: 15px;
+}
+
+/* Tab Pill */
+.toggle-button.left-pill {
+    -fx-background-radius: 3 0 0 3, 3 0 0 3, 2 0 0 2, 1 0 0 1;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-padding: 0.333333em 0.666667em 0.333333em 0.75em; /* 4 8 4 9 */
+}
+.toggle-button.center-pill {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0 0 -1 0, 0 0 0 0, 1 1 1 0, 2 2 2 1 ;
+}
+.toggle-button.right-pill {
+    -fx-background-radius: 0 3 3 0, 0 3 3 0, 0 2 2 0, 0 1 1 0;
+    -fx-background-insets: 0 0 -1 0, 0, 1 1 1 0, 2 2 2 1 ;
+}
+.toggle-button.left-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1, 2, -1.4 0 -1.4 -1.4, 2.6;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 1 0 0 1, 4 0 0 4, 1 0 0 1;
+}
+.toggle-button.center-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0, 0, 0, 0, 0;
+}
+.toggle-button.right-pill:focused {
+    -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 1 1 0, 0 4 4 0, 0 1 1 0;
+}
+.toggle-button:selected.left-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1, -1.4 0 -1.4 -1.4, 2.6;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 4 0 0 4, 0;
+}
+.toggle-button:selected.center-pill:focused {
+    -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0, 0, 0, 0;
+}
+.toggle-button:selected.right-pill:focused {
+    -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 4 4 0, 0;
+}
+
+/* Search Box */
+.search-box-icon {
+    -fx-shape: "M10.728,9.893c0.889-1.081,1.375-2.435,1.375-3.842C12.103,2.714,9.388,0,6.051,0C2.715,0,0,2.714,0,6.051c0,3.338,2.715,6.052,6.051,6.052c0.954,0,1.898-0.227,2.744-0.656l3.479,3.478l1.743-1.742L10.728,9.893z M6.051,2.484c1.966,0,3.566,1.602,3.566,3.566c0,1.968-1.6,3.567-3.566,3.567c-1.967,0-3.566-1.6-3.566-3.567C2.485,4.086,4.084,2.484,6.051,2.484z";
+    -fx-scale-shape: false;
+    -fx-background-color: #343638;
+}
+
+.search-box {
+    -fx-font-size: 16px;
+    -fx-text-fill: #363636;
+    -fx-background-radius: 15, 14;
+    -fx-padding: 0 66 0 30;
+}
+
+.search-box:focused {
+    -fx-background-radius: 15,14,16,14;
+}
+
+.search-up-button {
+    -fx-shape: "m15.816511754134844,6.817588838934888 c-0.17027168273925783,-0.17027168273925783 -0.4469631671905772,-0.17027168273925783 -0.6172348499298096,0 l-5.427409887313843,5.438051867485046 l-5.438051867485046,-5.438051867485046 c-0.17027168273925783,-0.17027168273925783 -0.4469631671905772,-0.17027168273925783 -0.6172348499298096,0 c-0.17027168273925783,0.17027168273925783 -0.17027168273925783,0.4469631671905772 0,0.6172348499298096 l5.7360273122787495,5.7360273122787495 c0.08513584136963676,0.08513584136963676 0.1915556430816719,0.12770376205444336 0.30861742496491884,0.12770376205444336 c0.10641980171203608,0 0.22348158359528844,-0.04256792068481451 0.30861742496491884,-0.12770376205444336 l5.7360273122787495,-5.7360273122787495 c0.1809136629104698,-0.17027168273925783 0.1809136629104698,-0.4469631671905772 0.010641980171203614,-0.6172348499298096 z";
+    -fx-scale-shape: false;
+    -fx-background-color: #343638;
+    -fx-rotate: 180;
+    -fx-padding: 9.5px;
+}
+.search-down-button {
+    -fx-shape: "m15.816511754134844,6.817588838934888 c-0.17027168273925783,-0.17027168273925783 -0.4469631671905772,-0.17027168273925783 -0.6172348499298096,0 l-5.427409887313843,5.438051867485046 l-5.438051867485046,-5.438051867485046 c-0.17027168273925783,-0.17027168273925783 -0.4469631671905772,-0.17027168273925783 -0.6172348499298096,0 c-0.17027168273925783,0.17027168273925783 -0.17027168273925783,0.4469631671905772 0,0.6172348499298096 l5.7360273122787495,5.7360273122787495 c0.08513584136963676,0.08513584136963676 0.1915556430816719,0.12770376205444336 0.30861742496491884,0.12770376205444336 c0.10641980171203608,0 0.22348158359528844,-0.04256792068481451 0.30861742496491884,-0.12770376205444336 l5.7360273122787495,-5.7360273122787495 c0.1809136629104698,-0.17027168273925783 0.1809136629104698,-0.4469631671905772 0.010641980171203614,-0.6172348499298096 z";
+    -fx-scale-shape: false;
+    -fx-background-color: #343638;
+    -fx-padding: 9.5px;
+}
+
+.search-clear-button {
+    -fx-shape: "M9.521,0.083c-5.212,0-9.438,4.244-9.438,9.479c0,5.234,4.225,9.479,9.438,9.479c5.212,0,9.437-4.244,9.437-9.479C18.958,4.327,14.733,0.083,9.521,0.083z M13.91,13.981c-0.367,0.369-0.963,0.369-1.329,0l-3.019-3.03l-3.019,3.03c-0.367,0.369-0.962,0.369-1.329,0c-0.367-0.368-0.366-0.965,0.001-1.334l3.018-3.031L5.216,6.585C4.849,6.217,4.849,5.618,5.217,5.25c0.366-0.369,0.961-0.368,1.328,0l3.018,3.031l3.019-3.031c0.366-0.368,0.961-0.369,1.328,0c0.366,0.368,0.366,0.967,0,1.335l-3.019,3.031l3.02,3.031C14.276,13.017,14.276,13.613,13.91,13.981z";
+    -fx-scale-shape: false;
+    -fx-background-color: #343638;
+    -fx-padding: 9.5px;
+}
+
+.search-counter {
+    -fx-font-size: 17px;
+}
+
+/* Pod Selector */
+.selector-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bolder;
+}
+
+.selector-pod-item {
+    -fx-font-size: 16px;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bolder;
+}
+
+.selector-pod-name {
+    -fx-pref-width: 110px;
+}
+
+.selector-pod-name .combo-box-popup > .list-view {
+    -fx-min-width: 380px;
+    -fx-min-height: 400px;
+}
+
+
+/* Log Level Pill */
+.log-level-trace:selected {
+    -fx-base: orange;
+    -fx-font-weight: bolder;
+}
+
+.log-level-debug:selected {
+    -fx-base: cyan;
+    -fx-font-weight: bolder;
+}
+
+.log-level-info:selected {
+    -fx-base: white;
+    -fx-font-weight: bolder;
+}
+
+.log-level-warn:selected {
+    -fx-base: yellow;
+    -fx-font-weight: bolder;
+}
+
+.log-level-error:selected {
+    -fx-base: red;
+    -fx-font-weight: bolder;
+}
+
+.log-level-fatal:selected {
+    -fx-base: firebrick;
+    -fx-font-weight: bolder;
+}
+
+.log-level-unk:selected {
+    -fx-base: lightgray;
+    -fx-font-weight: bolder;
+}
+
+.toggle-button:selected {
+        -fx-background-color:
+            transparent,
+            linear-gradient(to bottom, derive(-fx-outer-border, -20%), -fx-outer-border),
+            linear-gradient(to bottom, derive(-fx-color, -22%) 0%, derive(-fx-color, -13%) 20%, derive(-fx-color, -11%) 50%);
+}
+
+/* TABs */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: black;
+    -fx-background-insets: 0 1 1 0, 1 2 0 1, 2 3 0 2;
+}
+
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color:
+        black,
+        -fx-text-box-border,
+        linear-gradient(from 0px 0px to 0px 5px, -fx-text-box-border, derive(-fx-text-box-border, 30%));
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-font-weight: bolder;
+}
+
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-width: 0;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-close-button {
+    -fx-background-color: white;
+    -fx-shape: "M 0,0 H1 L 4,3 7,0 H8 V1 L 5,4 8,7 V8 H7 L 4,5 1,8 H0 V7 L 3,4 0,1 Z";
+    -fx-scale-shape: false;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-close-button:hover {
+    -fx-background-color: red;
+}
+
+/* Log List View */
+.log-list-view-cell {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #333333;
+    -fx-border-style: solid;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 2 0 2 0;
+    -fx-font-size: 15px;
+    -fx-font-family: Verdana;
+}
+
+/* Tooltips */
+.tooltips {
+    -fx-fill: white;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-family: Verdana;
+    -fx-padding: 8;
+}

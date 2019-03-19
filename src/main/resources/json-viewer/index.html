@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script type="text/javascript" src="json-viewer.js"></script>
+    <link rel="stylesheet" type="text/css" href="json-viewer.css">
+</head>
+<body>
+<div class="info">
+    <div class="centre-align">
+        <div id="lineId"></div>
+        <div id="searchCounter"></div>
+    </div>
+</div>
+<div id="json"></div>
+
+<script>
+			var jsonViewer = new JSONViewer();
+			var lineIdDiv = document.querySelector("#lineId");
+			var searchCounterDiv = document.querySelector("#searchCounter");
+			var jsonDiv = document.querySelector("#json");
+			
+			function clear() {
+				lineIdDiv.innerHTML="";
+				searchCounterDiv.innerHTML="";
+				jsonDiv.innerHTML="";
+			}
+
+			function showJson(lineId, lineIdColor, json, logLevelColor, searchText) {
+				// Set Line ID
+				lineIdDiv.style.color = lineIdColor;
+				lineIdDiv.innerHTML = "<b>Line:</b> "+lineId;
+				
+				// Set Json Data
+				jsonDiv.appendChild(jsonViewer.getContainer());
+				jsonViewer.setJson(JSON.parse(json), logLevelColor);
+				
+				search(searchText);
+			}
+
+			function search(searchText) {
+				// Set Json Data
+				jsonViewer.setSearchText(searchText);
+				jsonViewer.draw();
+
+				// Set Search Counter
+				var searchCounter = jsonViewer.getSearchCounter();
+				if(searchCounter == 1) {
+					searchCounterDiv.innerHTML = "<b>Found:</b> "+searchCounter+" occurence";
+				} else if(searchCounter > 1) {	
+					searchCounterDiv.innerHTML = "<b>Found:</b> "+searchCounter+" occurences";
+				} else {
+					searchCounterDiv.innerHTML = "";
+				}
+			}
+
+			//showJson('35', 'green', j2, 'red', 'CSIM');
+
+</script>
+</body>
+</html>
