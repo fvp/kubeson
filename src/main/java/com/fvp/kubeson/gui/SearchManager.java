@@ -125,13 +125,31 @@ public class SearchManager {
         searchResultIdx = 0;
     }
 
+    public void moveFirst() {
+        for (int i = 0; i < logTab.getLogLines().size(); i++) {
+            LogLineContainer logLineContainer = logTab.getLogLines().get(i);
+            if (logLineContainer.hasFoundSearch()) {
+                selectLogLine(i);
+                return;
+            }
+        }
+    }
+
+    public void moveLast() {
+        for (int i = logTab.getLogLines().size() - 1; i >= 0; i--) {
+            LogLineContainer logLineContainer = logTab.getLogLines().get(i);
+            if (logLineContainer.hasFoundSearch()) {
+                selectLogLine(i);
+                return;
+            }
+        }
+    }
+
     public void moveUp() {
         for (int i = logTab.getLogListView().getSelectedIndex() - 1; i >= 0; i--) {
             LogLineContainer logLineContainer = logTab.getLogLines().get(i);
             if (logLineContainer.hasFoundSearch()) {
-                logTab.getLogListView().selectAtOffset(i);
-                updateSearchResultIdx(i);
-                printCounter();
+                selectLogLine(i);
                 return;
             }
         }
@@ -141,12 +159,16 @@ public class SearchManager {
         for (int i = logTab.getLogListView().getSelectedIndex() + 1; i < logTab.getLogLines().size(); i++) {
             LogLineContainer logLineContainer = logTab.getLogLines().get(i);
             if (logLineContainer.hasFoundSearch()) {
-                logTab.getLogListView().selectAtOffset(i);
-                updateSearchResultIdx(i);
-                printCounter();
+                selectLogLine(i);
                 return;
             }
         }
+    }
+
+    private void selectLogLine(int i) {
+        logTab.getLogListView().selectAtOffset(i);
+        updateSearchResultIdx(i);
+        printCounter();
     }
 
     public void updateSearchResultIdx(int line) {

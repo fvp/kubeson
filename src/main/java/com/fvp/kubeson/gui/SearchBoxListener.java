@@ -6,6 +6,10 @@ public interface SearchBoxListener {
 
     void onDownButton();
 
+    void onLeftButton();
+
+    void onRightButton();
+
     void onClearButton();
 
     void onChange(String text);

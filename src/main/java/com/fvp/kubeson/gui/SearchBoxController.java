@@ -57,6 +57,20 @@ public final class SearchBoxController {
             }
 
             @Override
+            public void onLeftButton() {
+                if (currentTab != null) {
+                    currentTab.getSearchManager().moveFirst();
+                }
+            }
+
+            @Override
+            public void onRightButton() {
+                if (currentTab != null) {
+                    currentTab.getSearchManager().moveLast();
+                }
+            }
+
+            @Override
             public void onClearButton() {
                 if (currentTab != null) {
                     currentTab.clearAll();

@@ -88,6 +88,12 @@ public class SearchBox extends TextField implements ChangeListener<String> {
             } else if (keyEvent.getCode() == KeyCode.DOWN) {
                 searchBoxListeners.forEach(SearchBoxListener::onDownButton);
                 keyEvent.consume();
+            } else if (keyEvent.getCode() == KeyCode.LEFT) {
+                searchBoxListeners.forEach(SearchBoxListener::onLeftButton);
+                keyEvent.consume();
+            } else if (keyEvent.getCode() == KeyCode.RIGHT) {
+                searchBoxListeners.forEach(SearchBoxListener::onRightButton);
+                keyEvent.consume();
             } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 setText("");
                 searchBoxListeners.forEach(SearchBoxListener::onClearButton);
