@@ -207,6 +207,14 @@
     -fx-background-color: red;
 }
 
+.tabred > * > .tab-label {
+    -fx-text-fill: #e60000;
+}
+
+.radio-menu-item:checked > .left-container > .radio {
+    -fx-background-color: white;
+}
+
 /* Log List View */
 .log-list-view-cell {
     -fx-border-width: 0 0 1 0;

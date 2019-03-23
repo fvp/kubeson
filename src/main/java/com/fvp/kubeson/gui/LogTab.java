@@ -26,15 +26,12 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LogTab extends Tab {
 
     private static Logger LOGGER = LogManager.getLogger();
-
-    private Text tabName;
 
     private int logLineId;
 
@@ -69,10 +66,8 @@ public class LogTab extends Tab {
     private int logSourceColorIdx;
 
     LogTab(List<SelectedItem> selectedItems, String name, boolean showLogsFromStart) {
+        super(name);
         this.selectedItems = selectedItems;
-        this.tabName = new Text(name);
-        this.tabName.setFill(Color.WHITE);
-        super.setGraphic(tabName);
         setRunning(true);
 
         if (selectedItems.size() > 1) {
@@ -300,7 +295,7 @@ public class LogTab extends Tab {
         TabPane tabPane = super.getTabPane();
         int pos = tabPane.getTabs().indexOf(this) + 1;
 
-        LogTab logTab = new LogTab(selectedItems, getTabName(), false);
+        LogTab logTab = new LogTab(selectedItems, getText(), false);
         tabPane.getTabs().add(pos, logTab);
         tabPane.getSelectionModel().select(pos);
     }
@@ -326,10 +321,6 @@ public class LogTab extends Tab {
         return searchManager;
     }
 
-    public String getTabName() {
-        return tabName.getText();
-    }
-
     public boolean isRunning() {
         return running == 1;
     }
@@ -337,11 +328,10 @@ public class LogTab extends Tab {
     private void setRunning(boolean running) {
         if (running) {
             this.running = 1;
-            tabName.setFill(Color.WHITE);
+            super.getStyleClass().remove("tabred");
         } else {
             this.running = 0;
-            tabName.setFill(Color.web("#e60000"));
+            super.getStyleClass().add("tabred");
         }
     }
-
 }

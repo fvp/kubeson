@@ -2,6 +2,8 @@ package com.fvp.kubeson;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fvp.kubeson.core.ThreadFactory;
 import com.fvp.kubeson.gui.ClearButton;
@@ -86,12 +88,17 @@ public class Main extends Application {
         return primaryStage;
     }
 
-    public static Image getAppIcon() {
-        InputStream is = Main.class.getClassLoader().getResourceAsStream("icons/app.png");
+    public static List<Image> getAppIcons() {
+        List<Image> ret = new ArrayList<>();
+        InputStream is = Main.class.getClassLoader().getResourceAsStream("icons/app16.png");
         if (is != null) {
-            return new Image(is);
+            ret.add(new Image(is));
         }
-        return null;
+        is = Main.class.getClassLoader().getResourceAsStream("icons/app32.png");
+        if (is != null) {
+            ret.add(new Image(is));
+        }
+        return ret;
     }
 
     private static void globalKeyPressedEvent(KeyEvent keyEvent) {
@@ -216,17 +223,16 @@ public class Main extends Application {
         primaryStage.iconifiedProperty()
             .addListener((observable, oldValue, newValue) -> root.pseudoClassStateChanged(ICONIFIED_PSEUDO_CLASS, primaryStage.isIconified()));
 
-        primaryStage.setTitle("ULF Log Viewer");
+        primaryStage.setTitle("Kubeson - Kubernetes Json Log Viewer");
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
+        //primaryStage.setMaximized(true);
         primaryStage.setOnCloseRequest((event) -> {
             ThreadFactory.shutdownAll();
         });
-        primaryStage.getIcons().add(getAppIcon());
+        primaryStage.getIcons().addAll(getAppIcons());
         primaryStage.show();
 
         //CSSFX.start();
         //ScenicView.show(scene);
-
     }
 }

@@ -41,6 +41,7 @@ public final class LogTabPane {
                 keyEvent.consume();
             }
         });
+
         VBox.setVgrow(logTabPane, Priority.ALWAYS);
     }
 
@@ -55,7 +56,7 @@ public final class LogTabPane {
     public static boolean createTab(List<SelectedItem> selectedItems, String name) {
         // Return false if Tab with same name already exists
         for (Tab tab : logTabPane.getTabs()) {
-            if (((LogTab) tab).getTabName().equals(name)) {
+            if (((LogTab) tab).getText().equals(name)) {
                 return false;
             }
         }

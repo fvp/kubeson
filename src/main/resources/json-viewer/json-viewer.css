@@ -6,6 +6,10 @@ body {
     font-size: 15px;
 }
 
+::-webkit-scrollbar-corner {
+    background-color: black;
+}
+
 .info {
 	height: 28px;
 	width: 100%;

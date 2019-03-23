@@ -46,7 +46,7 @@ public class InfoDialog extends Alert {
 
         // Set Icon
         Stage stage = (Stage) getDialogPane().getScene().getWindow();
-        stage.getIcons().add(Main.getAppIcon());
+        stage.getIcons().addAll(Main.getAppIcons());
         stage.setX(parentWindow.getX() + parentWindow.getWidth() / 2 - 340);
         stage.setY(parentWindow.getY() + parentWindow.getHeight() / 2 - 220);
 
