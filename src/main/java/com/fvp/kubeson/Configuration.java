@@ -4,6 +4,8 @@ import javafx.scene.paint.Color;
 
 public final class Configuration {
 
+    public static final String APP_NAME = "Kubeson - Kubernetes Json Log Viewer";
+
     public static final Color[] LOG_ID_COLORS = new Color[]{Color.CORNFLOWERBLUE, Color.GREEN};
 
     public static final Color SYSTEM_MSG_COLOR = Color.GREEN;
@@ -25,7 +27,13 @@ public final class Configuration {
 
     public static final int CLIPBOARD_COPY_MAX_LOG_LINES = 500;
 
-    public static double LOG_LIST_PANEL_SPLIT = 0.7;
+    public static final double LOG_LIST_PANEL_SPLIT = 0.7;
 
-    public static int KUBERNETES_WORKER_WAIT_TIME_MS = 500;
+    public static final int KUBERNETES_WORKER_WAIT_TIME_MS = 500;
+
+    public static final String GITHUB_TOKEN = "aa9e0b0e141df5ccac46f0620fd8a10240ae90e0";
+
+    public static final String GITHUB_RELEASES = "https://api.github.com/repos/fvp/kubeson/releases";
+
+    public static final int CHECK_FOR_UPGRADE_WORKER_WAIT_TIME_MS = 43200000;
 }

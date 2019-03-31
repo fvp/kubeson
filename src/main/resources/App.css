@@ -13,6 +13,11 @@
     -fx-color: -fx-hover-base;
 }
 
+.scroll-bar > .decrement-button > .decrement-arrow,
+.scroll-bar > .increment-button > .increment-arrow {
+   -fx-background-color: #95999C;
+}
+
 /* Context Menu */
 .context-menu {
     -fx-background-color: -fx-color;
@@ -167,6 +172,10 @@
 .log-level-unk:selected {
     -fx-base: lightgray;
     -fx-font-weight: bolder;
+}
+
+.log-category:selected {
+    -fx-base: #8c8c8c;
 }
 
 .toggle-button:selected {

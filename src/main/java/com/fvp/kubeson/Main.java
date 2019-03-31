@@ -2,12 +2,14 @@ package com.fvp.kubeson;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fvp.kubeson.core.ThreadFactory;
+import com.fvp.kubeson.core.Upgrade;
 import com.fvp.kubeson.gui.ClearButton;
-import com.fvp.kubeson.gui.InfoDialog;
+import com.fvp.kubeson.gui.InfoButton;
 import com.fvp.kubeson.gui.LogTab;
 import com.fvp.kubeson.gui.LogTabPane;
 import com.fvp.kubeson.gui.PodSelector;
@@ -17,18 +19,15 @@ import com.fvp.kubeson.gui.TabListener;
 import com.fvp.kubeson.gui.TabPill;
 import com.fvp.kubeson.model.LogCategory;
 import com.fvp.kubeson.model.LogLevel;
+import com.github.markusbernhardt.proxy.ProxySearch;
 import com.sun.javafx.text.GlyphLayout;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -63,6 +62,14 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         LOGGER.info("Running app with Java Version " + System.getProperty("java.version") + " Arch " + System.getProperty("sun.arch.data.model"));
+
+        // System props
+        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+        System.setProperty("java.util.logging.config.file", "");
+        System.setProperty("java.net.useSystemProxies", "true");
+
+        // Find http proxy (if any) to be able to upgrade
+        ProxySelector.setDefault(ProxySearch.getDefaultProxySearch().getProxySelector());
 
         // Very ugly hack to use BreakIterator.getLineInstance() for word wrapping. Probably not version safe.
         try {
@@ -134,10 +141,9 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         // Use Log4j2 for JUL logging
         Thread.setDefaultUncaughtExceptionHandler(Main::logError);
-        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
-        System.setProperty("java.util.logging.config.file", "");
         Main.application = this;
         Main.primaryStage = primaryStage;
+        Upgrade.init();
 
         // Main Scene
         VBox root = new VBox();
@@ -200,18 +206,7 @@ public class Main extends Application {
         toolbar.getItems().add(SearchBoxController.draw());
 
         // Set Info Button
-        InputStream is = getClass().getClassLoader().getResourceAsStream("icons/info.png");
-        ImageView imageView = new ImageView(new Image(is));
-
-        Label label = new Label();
-        label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        label.setGraphic(imageView);
-        label.setTooltip(new Tooltip("INFO"));
-        label.setOnMouseClicked(event -> {
-            new InfoDialog(scene.getWindow());
-        });
-
-        toolbar.getItems().add(label);
+        toolbar.getItems().add(InfoButton.draw(scene));
 
         // Set Main Window
         String appCss = getClass().getClassLoader().getResource("App.css").toExternalForm();
@@ -223,7 +218,7 @@ public class Main extends Application {
         primaryStage.iconifiedProperty()
             .addListener((observable, oldValue, newValue) -> root.pseudoClassStateChanged(ICONIFIED_PSEUDO_CLASS, primaryStage.isIconified()));
 
-        primaryStage.setTitle("Kubeson - Kubernetes Json Log Viewer");
+        primaryStage.setTitle(Configuration.APP_NAME);
         primaryStage.setScene(scene);
         //primaryStage.setMaximized(true);
         primaryStage.setOnCloseRequest((event) -> {

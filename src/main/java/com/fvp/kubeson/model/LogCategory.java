@@ -18,7 +18,7 @@ public enum LogCategory implements TabPillButtonList {
 
     @Override
     public String getStyleClass() {
-        return null;
+        return "log-category";
     }
 
     @Override

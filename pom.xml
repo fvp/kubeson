@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gemalto.rnd.logging</groupId>
     <artifactId>kubeson</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
 
     <properties>
         <!-- If not specified in maven command line with "-Dhg.changeset.id=hash", hash is set to 000000000000 -->
@@ -22,6 +22,7 @@
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <javafx-maven-plugin.version>8.8.3</javafx-maven-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+        <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
     </properties>
 
     <dependencies>
@@ -104,6 +105,11 @@
             <version>${flowless.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.markusbernhardt</groupId>
+            <artifactId>proxy-vole</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <dependency>
             <groupId>com.zenjava</groupId>
             <artifactId>javafx-maven-plugin</artifactId>
             <version>${javafx-maven-plugin.version}</version>
@@ -111,6 +117,7 @@
         </dependency>
 
         <!-- Dev Help Libs -->
+        <!--
         <dependency>
             <groupId>org.scenicview</groupId>
             <artifactId>scenicview</artifactId>
@@ -123,10 +130,11 @@
             <artifactId>cssfx</artifactId>
             <version>${cssfx.version}</version>
         </dependency>
+        -->
     </dependencies>
 
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
+        <finalName>${project.name}</finalName>
 
         <plugins>
             <plugin>
@@ -144,22 +152,15 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>${javafx-maven-plugin.version}</version>
                 <configuration>
-                    <vendor>Gemalto</vendor>
+                    <vendor>Fvp</vendor>
                     <mainClass>com.fvp.kubeson.Main</mainClass>
-                    <bundler>windows.app</bundler>
                     <appName>${project.artifactId}</appName>
                     <manifestAttributes>
                         <Implementation-Title>${project.artifactId}</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
                     </manifestAttributes>
-                    <needShortcut>true</needShortcut>
-                    <bundleArguments>
-                        <runtime/>
-                        <icon>${project.basedir}/src/launcher/app.ico</icon>
-                    </bundleArguments>
                 </configuration>
                 <executions>
-                    <!-- required before build-native -->
                     <execution>
                         <id>create-jfxjar</id>
                         <phase>package</phase>
@@ -167,23 +168,31 @@
                             <goal>build-jar</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>create-native</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build-native</goal>
-                        </goals>
-                    </execution>
                 </executions>
             </plugin>
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>prepare-values</id>
+                        <id>copy-launcher</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/jfx</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/launcher</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-config</id>
                         <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -192,15 +201,31 @@
                             <outputDirectory>${project.build.directory}/jfx/app</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/src/launcher</directory>
-                                    <filtering>true</filtering>
+                                    <directory>${project.basedir}/src/config</directory>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${maven-exec-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>produce-signature</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.fvp.kubeson.CreateSignature</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

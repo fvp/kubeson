@@ -7,7 +7,7 @@ body {
 }
 
 ::-webkit-scrollbar-corner {
-    background-color: black;
+    background-color: #404345;
 }
 
 .info {

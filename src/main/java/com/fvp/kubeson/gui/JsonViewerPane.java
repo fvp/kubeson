@@ -103,11 +103,8 @@ public class JsonViewerPane {
         String jsonViewer = this.getClass().getClassLoader().getResource("json-viewer/index.html").toExternalForm();
         webEngine.load(jsonViewer);
         createContextMenu();
-        return webview;
-        //StackPane s = new StackPane(webview);
-        //s.setStyle("-fx-padding: 30px;");
 
-        //return s;
+        return webview;
     }
 
     private void createContextMenu() {
