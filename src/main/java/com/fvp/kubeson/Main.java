@@ -220,7 +220,7 @@ public class Main extends Application {
 
         primaryStage.setTitle(Configuration.APP_NAME);
         primaryStage.setScene(scene);
-        //primaryStage.setMaximized(true);
+        primaryStage.setMaximized(true);
         primaryStage.setOnCloseRequest((event) -> {
             ThreadFactory.shutdownAll();
         });
