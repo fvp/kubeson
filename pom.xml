@@ -16,6 +16,7 @@
         <jackson.version>2.9.8</jackson.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
         <flowless.version>0.6.1</flowless.version>
+        <proxy-vole.version>1.0.5</proxy-vole.version>
         <cssfx.version>1.0.0</cssfx.version>
 
         <!-- Plugins -->
@@ -107,7 +108,7 @@
         <dependency>
             <groupId>com.github.markusbernhardt</groupId>
             <artifactId>proxy-vole</artifactId>
-            <version>1.0.4</version>
+            <version>${proxy-vole.version}</version>
         </dependency>
         <dependency>
             <groupId>com.zenjava</groupId>
