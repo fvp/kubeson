@@ -28,11 +28,11 @@ Kubeson provides the following features:
 
 # Installation
 
-Kubeson requires a Java 8 32 Bits (x86) JVM from build 60 to build 181. The latest version of Java 8 has a bug in the JavaFx UI, which will be fixed in the upcomming release. Kubeson checks for a supported JVM, in case it does not find it, it will show an error message.
+Kubeson requires a Java 8 32 Bits (x86) JVM from build 60 to build 181. The latest version of Java 8 has a bug in the JavaFx UI, which will be fixed in the upcoming release. Kubeson checks for a supported JVM, in case it does not find it, it will show an error message.
 
 It is advisable to install Java 8 32 Bits (x86) build 181.
 
-After checking that you have a supported JVM, just unzip the Kubeson package in a folder that the user has write permission and double click in kubeson.exe
+After checking that you have a supported JVM, just unzip the Kubeson package in a folder with write permission and double click in kubeson.exe
 
 
 
