@@ -2,7 +2,6 @@ package com.fvp.kubeson;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,6 @@ import com.fvp.kubeson.gui.TabListener;
 import com.fvp.kubeson.gui.TabPill;
 import com.fvp.kubeson.model.LogCategory;
 import com.fvp.kubeson.model.LogLevel;
-import com.github.markusbernhardt.proxy.ProxySearch;
 import com.sun.javafx.text.GlyphLayout;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -67,9 +65,6 @@ public class Main extends Application {
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
         System.setProperty("java.util.logging.config.file", "");
         System.setProperty("java.net.useSystemProxies", "true");
-
-        // Find http proxy (if any) to be able to upgrade
-        ProxySelector.setDefault(ProxySearch.getDefaultProxySearch().getProxySelector());
 
         // Very ugly hack to use BreakIterator.getLineInstance() for word wrapping. Probably not version safe.
         try {
@@ -216,7 +211,7 @@ public class Main extends Application {
 
         // Workaround fix JVM bug JDK-8146479
         primaryStage.iconifiedProperty()
-            .addListener((observable, oldValue, newValue) -> root.pseudoClassStateChanged(ICONIFIED_PSEUDO_CLASS, primaryStage.isIconified()));
+                .addListener((observable, oldValue, newValue) -> root.pseudoClassStateChanged(ICONIFIED_PSEUDO_CLASS, primaryStage.isIconified()));
 
         primaryStage.setTitle(Configuration.APP_NAME);
         primaryStage.setScene(scene);

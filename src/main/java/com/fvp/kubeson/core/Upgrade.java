@@ -16,7 +16,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -24,19 +28,28 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fvp.kubeson.Configuration;
 import com.fvp.kubeson.gui.InfoButton;
+import com.github.markusbernhardt.proxy.ProxySearch;
+import com.github.markusbernhardt.proxy.ProxySearch.Strategy;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
@@ -44,11 +57,13 @@ import org.apache.logging.log4j.Logger;
 
 public final class Upgrade {
 
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("\\D*(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)");
 
-    private static Logger LOGGER = LogManager.getLogger();
+    private static URL GITHUB_RELEASES_URL;
 
     private static Task downloadWorker;
 
@@ -58,15 +73,69 @@ public final class Upgrade {
 
     private static String message;
 
+    private static Proxy proxy;
+
     private Upgrade() {
 
     }
 
     public static void init() {
+        setTrustAllCertificates();
+        try {
+            GITHUB_RELEASES_URL = new URL(Configuration.GITHUB_RELEASES + "?access_token=" + Configuration.GITHUB_TOKEN);
+
+            // Find http proxy (if any) to be able to upgrade
+            ProxySearch proxySearch = new ProxySearch();
+            proxySearch.addStrategy(Strategy.OS_DEFAULT);
+            proxySearch.addStrategy(Strategy.ENV_VAR);
+            proxySearch.addStrategy(Strategy.BROWSER);
+            proxySearch.addStrategy(Strategy.JAVA);
+
+            List<Proxy> proxies = proxySearch.getProxySelector().select(GITHUB_RELEASES_URL.toURI());
+            if (proxies != null && proxies.size() > 0) {
+                proxy = proxies.get(0);
+                LOGGER.info("Found {} proxies. Using proxy {}", proxies.size(), proxy);
+            }
+        } catch (MalformedURLException | URISyntaxException e) {
+            LOGGER.error("Failed to create github release url object and proxy check, this should never happen", e);
+        }
+
         upgradeState = UpgradeState.NO_UPGRADE_AVAILABLE;
         message = "";
         downloadWorker = downloadRelease();
         startCheckForUpgradeWorker();
+    }
+
+    /**
+     * Trust all certificates, the signature check of the upgrade package already provides the required security
+     */
+    private static void setTrustAllCertificates() {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            // Create all-trusting host name verifier
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+        } catch (Exception e) {
+            LOGGER.error("Failed to create trust all https certificates, this should never happen", e);
+        }
     }
 
     public static void startDownload() {
@@ -116,8 +185,9 @@ public final class Upgrade {
             protected Object call() {
                 if (upgradeState == UPGRADE_AVAILABLE) {
                     setState(DOWNLOADING);
-                    try (BufferedInputStream in = new BufferedInputStream(
-                        new URL(releaseToUpgrade.url).openStream()); FileOutputStream fileOutputStream = new FileOutputStream("newapp.zip")) {
+                    try (BufferedInputStream in = new BufferedInputStream(getConnection(new URL(releaseToUpgrade.url)).getInputStream());
+                            FileOutputStream fileOutputStream = new FileOutputStream("newapp.zip")) {
+
                         int buffer = 4096;
                         byte dataBuffer[] = new byte[buffer];
                         int bytesRead;
@@ -156,8 +226,8 @@ public final class Upgrade {
     private static void checkForUpgrade() {
         try {
             LOGGER.info("Performing Upgrade Check");
-            URL url = new URL(Configuration.GITHUB_RELEASES + "?access_token=" + Configuration.GITHUB_TOKEN);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            HttpURLConnection con = (HttpURLConnection) getConnection(GITHUB_RELEASES_URL);
             con.setRequestMethod("GET");
             con.setConnectTimeout(3000);
             con.setReadTimeout(3000);
@@ -172,14 +242,21 @@ public final class Upgrade {
                         JsonNode node = arr.get(i);
                         if (!node.get("draft").asBoolean() && !node.get("prerelease").asBoolean()) {
                             String tagName = node.get("tag_name").asText();
-                            if (isNewerVersion(tagName)) {
+                            Version newVersion = new Version(tagName);
+                            if (isNewerVersion(newVersion)) {
                                 JsonNode asset = node.get("assets").get(0);
-                                releaseToUpgrade =
-                                    new Release(tagName, node.get("name").asText(), asset.get("browser_download_url").asText(), asset.get("size").asInt());
-                                setState(UPGRADE_AVAILABLE);
-                                LOGGER.info("Found release {} to upgrade", releaseToUpgrade.tagName);
+                                Release release = new Release(newVersion, tagName, node.get("name").asText(), asset.get("browser_download_url").asText(),
+                                        asset.get("size").asInt());
+                                if (releaseToUpgrade == null || newVersion.compareTo(releaseToUpgrade.version) > 0) {
+                                    releaseToUpgrade = release;
+                                }
                             }
                         }
+                    }
+
+                    if (releaseToUpgrade != null) {
+                        setState(UPGRADE_AVAILABLE);
+                        LOGGER.info("Found release {} to upgrade", releaseToUpgrade.tagName);
                     }
                 }
             } else {
@@ -190,9 +267,9 @@ public final class Upgrade {
         }
     }
 
-    private static boolean isNewerVersion(String newVersion) {
+    private static boolean isNewerVersion(Version newVersion) {
         String version = Upgrade.class.getPackage().getImplementationVersion();
-        if ((new Version(newVersion)).compareTo(new Version(version)) > 0) {
+        if (newVersion.compareTo(new Version(version)) > 0) {
             return true;
         }
 
@@ -321,7 +398,17 @@ public final class Upgrade {
         bos.close();
     }
 
+    private static URLConnection getConnection(URL url) throws IOException {
+        if (proxy != null) {
+            return url.openConnection(proxy);
+        } else {
+            return url.openConnection();
+        }
+    }
+
     private static class Release {
+
+        private Version version;
 
         private String tagName;
 
@@ -331,7 +418,8 @@ public final class Upgrade {
 
         private int size;
 
-        private Release(String tagName, String name, String url, int size) {
+        private Release(Version version, String tagName, String name, String url, int size) {
+            this.version = version;
             this.tagName = tagName;
             this.name = name;
             this.url = url;
@@ -345,6 +433,7 @@ public final class Upgrade {
             sb.append(", name='").append(name).append('\'');
             sb.append(", url='").append(url).append('\'');
             sb.append(", size=").append(size);
+            sb.append(", ").append(version);
             sb.append('}');
             return sb.toString();
         }
