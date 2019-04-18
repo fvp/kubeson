@@ -73,7 +73,6 @@ public final class SearchBoxController {
             @Override
             public void onClearButton() {
                 if (currentTab != null) {
-                    currentTab.clearAll();
                     currentTab.getLogListView().requestFocus();
                 }
             }
@@ -125,12 +124,8 @@ public final class SearchBoxController {
             SearchManager searchManager = currentTab.getSearchManager();
             searchManager.setSearchText(searchBox.getText());
 
-            if (!StringUtils.isEmpty(searchBox.getText())) {
-                if (semaphore.availablePermits() == 0) {
-                    semaphore.release();
-                }
-            } else {
-                currentTab.clearAll();
+            if (semaphore.availablePermits() == 0) {
+                semaphore.release();
             }
         }
     }
@@ -179,8 +174,13 @@ public final class SearchBoxController {
                             if (searchManager.getSearchResultTotal() == 0) { //Empty Search
                                 Platform.runLater(currentTab::clearAll);
                             }
-                            Platform.runLater(searchManager::printCounter);
+                        } else { //Empty search, clean up previous search
+                            for (final LogLineContainer logLineContainer : currentTab.getLogLines()) {
+                                logLineContainer.setSearchItems(null);
+                            }
+                            Platform.runLater(currentTab::clearAll);
                         }
+                        Platform.runLater(searchManager::printCounter);
                     }
                 }
             } catch (InterruptedException e) {

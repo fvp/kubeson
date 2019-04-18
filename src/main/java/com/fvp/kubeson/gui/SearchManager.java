@@ -111,12 +111,6 @@ public class SearchManager {
     }
 
     public void clear() {
-        hasSearch = false;
-        for (LogLineContainer logLineContainer : logTab.getLogLines()) {
-            logLineContainer.setSearchItems(null);
-        }
-        reset();
-        printCounter();
         logTab.getJsonViewerPane().updateSearch();
     }
 
@@ -182,13 +176,10 @@ public class SearchManager {
     }
 
     public void printCounter() {
-        String counter;
-        if (searchResultTotal > 0) {
-            counter = searchResultIdx + "/" + searchResultTotal;
+        if (hasSearch) {
+            SearchBoxController.printCounter(logTab, searchResultIdx + "/" + searchResultTotal);
         } else {
-            counter = "";
+            SearchBoxController.printCounter(logTab, "");
         }
-        SearchBoxController.printCounter(logTab, counter);
     }
-
 }
