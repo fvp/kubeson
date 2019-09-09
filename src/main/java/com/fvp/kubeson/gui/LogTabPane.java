@@ -1,5 +1,6 @@
 package com.fvp.kubeson.gui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,9 @@ import com.fvp.kubeson.model.SelectedItem;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -41,6 +44,23 @@ public final class LogTabPane {
                 keyEvent.consume();
             }
         });
+        logTabPane.setOnDragOver((event) -> {
+            if (event.getGestureSource() != logTabPane && event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+            event.consume();
+        });
+        logTabPane.setOnDragDropped((event) -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasFiles()) {
+                for (File file : db.getFiles()) {
+                    success = createTab(file);
+                }
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
         VBox.setVgrow(logTabPane, Priority.ALWAYS);
     }
 
@@ -60,6 +80,20 @@ public final class LogTabPane {
             }
         }
         LogTab logTab = new LogTab(selectedItems, name, true);
+        logTabPane.getTabs().add(logTab);
+        logTabPane.getSelectionModel().selectLast();
+
+        return true;
+    }
+
+    private static boolean createTab(File logFile) {
+        // Return false if Tab with same name already exists
+        for (Tab tab : logTabPane.getTabs()) {
+            if (tab.getTooltip() != null && logFile.toString().equals(tab.getTooltip().getText())) {
+                return false;
+            }
+        }
+        LogTab logTab = new LogTab(logFile);
         logTabPane.getTabs().add(logTab);
         logTabPane.getSelectionModel().selectLast();
 

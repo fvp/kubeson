@@ -37,7 +37,7 @@ public class LogLine {
         if (text.startsWith("{")) {
             subtext = StringUtils.substring(text, 0, 140).toUpperCase();
             json = true;
-            setLogCategory(subtext);
+            setLogCategory(subtext, text);
         } else {
             subtext = StringUtils.substring(text, 0, 60).toUpperCase();
         }
@@ -103,9 +103,11 @@ public class LogLine {
         return logCategory;
     }
 
-    private void setLogCategory(String text) {
+    private void setLogCategory(String subText, String text) {
         for (LogCategory category : LogCategory.values()) {
-            if (text.contains(category.name())) {
+            if (subText.contains(category.getName())
+                    && (category.getSubCategorySearch() == null || text.contains(category.getSubCategorySearch()))
+            ) {
                 logCategory = category;
                 return;
             }

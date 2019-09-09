@@ -11,13 +11,13 @@
         <!-- If not specified in maven command line with "-Dhg.changeset.id=hash", hash is set to 000000000000 -->
         <hg.changeset.id>000000000000</hg.changeset.id>
         <project-changeset-id>${hg.changeset.id}</project-changeset-id>
-        <kubernetes-client.version>4.1.1</kubernetes-client.version>
-        <log4j.version>2.11.1</log4j.version>
-        <jackson.version>2.9.8</jackson.version>
-        <commons-lang3.version>3.8.1</commons-lang3.version>
+        <kubernetes-client.version>4.4.2</kubernetes-client.version>
+        <log4j.version>2.12.1</log4j.version>
+        <jackson.version>2.9.9</jackson.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
         <flowless.version>0.6.1</flowless.version>
         <proxy-vole.version>1.0.5</proxy-vole.version>
-        <cssfx.version>1.0.0</cssfx.version>
+        <cssfx.version>1.1.1</cssfx.version>
 
         <!-- Plugins -->
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>

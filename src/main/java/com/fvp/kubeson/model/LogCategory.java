@@ -3,17 +3,28 @@ package com.fvp.kubeson.model;
 import com.fvp.kubeson.gui.TabPillButtonList;
 
 public enum LogCategory implements TabPillButtonList {
-    SERVICE("icons/service.png"), COMMUNICATION("icons/network.png"), DATABASE("icons/database.png"), HEALTH("icons/health.png"), CRYPTO("icons/crypto.png");
+    SERVICE("SERVICE", "icons/service.png", null),
+    COMMUNICATION_IN("COMMUNICATION", "icons/network_in.png", "\"flow\":\"IN\""),
+    COMMUNICATION_OUT("COMMUNICATION", "icons/network_out.png", "\"flow\":\"OUT\""),
+    DATABASE("DATABASE", "icons/database.png", null),
+    HEALTH("HEALTH", "icons/health.png", null),
+    CRYPTO("CRYPTO", "icons/crypto.png", null);
 
     private final String icon;
 
-    LogCategory(String icon) {
+    private final String name;
+
+    private final String subCategorySearch;
+
+    LogCategory(String name, String icon, String subCategorySearch) {
         this.icon = icon;
+        this.name = name;
+        this.subCategorySearch = subCategorySearch;
     }
 
     @Override
     public String getText() {
-        return this.name();
+        return this.name().replace("_", " ");
     }
 
     @Override
@@ -24,5 +35,13 @@ public enum LogCategory implements TabPillButtonList {
     @Override
     public String getIcon() {
         return icon;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSubCategorySearch() {
+        return subCategorySearch;
     }
 }

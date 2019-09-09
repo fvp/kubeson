@@ -1,5 +1,9 @@
 package com.fvp.kubeson.gui;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +68,33 @@ public class LogTab extends Tab {
     private int logIdColorIdx;
 
     private int logSourceColorIdx;
+
+    LogTab(File logFile) {
+        super(logFile.getName());
+        LOGGER.debug("Creating tab for file [" + logFile + "]");
+
+        super.setTooltip(new Tooltip(logFile.toString()));
+        init();
+
+        super.setOnClosed((event) -> {
+            logLines.clear();
+            logListView.dispose();
+            LogTabPane.broadcastOnTabClosed(this);
+        });
+
+        //Read file content
+        try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
+            String line = reader.readLine();
+            while (line != null) {
+                LogLine logLine = new LogLine(line);
+                logLines.add(new LogLineContainer(null, logLine, logLineId(), Configuration.LOG_ID_COLORS[0]));
+                checkEnableJsonViewer(logLine);
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to read contents of file [" + logFile + "]", e);
+        }
+    }
 
     LogTab(List<SelectedItem> selectedItems, String name, boolean showLogsFromStart) {
         super(name);
@@ -131,12 +162,8 @@ public class LogTab extends Tab {
             }
         };
         Kubernetes.addListener(kubernetesListener);
-        //this.logLines = FXCollections.synchronizedObservableList(FXCollections.observableList(new TreeList<>()));
-        this.logLines = FXCollections.observableList(new TreeList<>());
-        this.filteredLogLines = new FilteredList<>(logLines, s -> true);
+        init();
 
-        this.searchManager = new SearchManager(this);
-        this.logListView = new LogListView(this);
         super.setOnClosed((event) -> {
             logLines.clear();
             logListView.dispose();
@@ -144,19 +171,27 @@ public class LogTab extends Tab {
             Kubernetes.removeListener(kubernetesListener);
             LogTabPane.broadcastOnTabClosed(this);
         });
+
+        // Start printing log lines
+        selectedItems.forEach(selectedItem -> {
+            selectedItem.getPod()
+                    .addListener(selectedItem.getContainer(), getLogSource(selectedItem.getText(), selectedItems.size()), this.podLogFeedListener,
+                            showLogsFromStart);
+        });
+    }
+
+    private void init() {
+        this.logLines = FXCollections.synchronizedObservableList(FXCollections.observableList(new TreeList<>()));
+        //this.logLines = FXCollections.observableList(new TreeList<>());
+        this.filteredLogLines = new FilteredList<>(logLines, s -> true);
+        this.searchManager = new SearchManager(this);
+        this.logListView = new LogListView(this);
         this.jsonViewerPane = new JsonViewerPane(this);
         this.tabSplitPane = new SplitPane(this.logListView.draw());
         this.tabSplitPane.setStyle("-fx-background-color: black;-fx-control-inner-background: black;");
 
         super.setContent(this.tabSplitPane);
         initFiltersDefaultState();
-
-        // Start printing log lines
-        selectedItems.forEach(selectedItem -> {
-            selectedItem.getPod()
-                .addListener(selectedItem.getContainer(), getLogSource(selectedItem.getText(), selectedItems.size()), this.podLogFeedListener,
-                    showLogsFromStart);
-        });
     }
 
     private LogSource getLogSource(String name, int size) {
@@ -204,6 +239,10 @@ public class LogTab extends Tab {
         }
         logLines.add(new LogLineContainer(logSource, logLine, logLineId(), Configuration.LOG_ID_COLORS[logIdColorIdx]));
         lastLogLineTime = currentTime;
+        checkEnableJsonViewer(logLine);
+    }
+
+    private void checkEnableJsonViewer(LogLine logLine) {
         if (!jsonViewerPane.isDrawn() && logLine.isJson()) {
             tabSplitPane.setDividerPosition(0, Configuration.LOG_LIST_PANEL_SPLIT);
             tabSplitPane.getItems().add(jsonViewerPane.draw());
@@ -277,11 +316,11 @@ public class LogTab extends Tab {
         jsonViewerPane.clear();
         filteredLogLines.setPredicate(logLineContainer -> {
             if (logLineContainer.getLogLine().getLogLevel() != null && logLevelStates != null && !logLevelStates.get(
-                logLineContainer.getLogLine().getLogLevel())) {
+                    logLineContainer.getLogLine().getLogLevel())) {
                 return false;
             }
             if (logLineContainer.getLogLine().getLogCategory() != null && logCategoryStates != null && !logCategoryStates.get(
-                logLineContainer.getLogLine().getLogCategory())) {
+                    logLineContainer.getLogLine().getLogCategory())) {
                 return false;
             }
             return true;

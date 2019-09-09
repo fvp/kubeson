@@ -25,6 +25,7 @@ Kubeson provides the following features:
 * Export all log lines
 * Export searched log lines
 * Upgrade button in the info section
+* Drag and drop log files
 
 # Installation
 

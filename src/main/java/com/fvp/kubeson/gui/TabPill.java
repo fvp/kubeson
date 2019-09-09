@@ -82,7 +82,7 @@ public class TabPill<T extends TabPillButtonList> extends HBox {
             this.toggleButton.setPrefHeight(45);
             this.toggleButton.setMaxWidth(70);
             this.toggleButton.setPrefWidth(Region.USE_PREF_SIZE);
-            this.toggleButton.setMinWidth(58);
+            this.toggleButton.setMinWidth(54);
             this.toggleButton.setFocusTraversable(false);
             if (key.getStyleClass() != null) {
                 this.toggleButton.getStyleClass().add(key.getStyleClass());
