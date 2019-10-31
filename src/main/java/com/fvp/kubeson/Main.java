@@ -5,34 +5,16 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fvp.kubeson.core.ThreadFactory;
-import com.fvp.kubeson.core.Upgrade;
-import com.fvp.kubeson.gui.ClearButton;
-import com.fvp.kubeson.gui.InfoButton;
-import com.fvp.kubeson.gui.LogTab;
-import com.fvp.kubeson.gui.LogTabPane;
-import com.fvp.kubeson.gui.PodSelector;
-import com.fvp.kubeson.gui.SearchBoxController;
-import com.fvp.kubeson.gui.StopButton;
-import com.fvp.kubeson.gui.TabListener;
-import com.fvp.kubeson.gui.TabPill;
-import com.fvp.kubeson.model.LogCategory;
-import com.fvp.kubeson.model.LogLevel;
+import com.fvp.kubeson.common.gui.MainTab;
+import com.fvp.kubeson.common.gui.MainToolbar;
+import com.fvp.kubeson.common.util.ThreadFactory;
+import com.fvp.kubeson.logs.gui.LogTabPane;
 import com.sun.javafx.text.GlyphLayout;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
@@ -51,12 +33,6 @@ public class Main extends Application {
     private static Application application;
 
     private static Stage primaryStage;
-
-    private static KeyCombination ctrlR = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_ANY);
-
-    private static KeyCombination ctrlS = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_ANY);
-
-    private static KeyCombination ctrlF = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_ANY);
 
     public static void main(String[] args) {
         LOGGER.info("Running app with Java Version " + System.getProperty("java.version") + " Arch " + System.getProperty("sun.arch.data.model"));
@@ -103,16 +79,6 @@ public class Main extends Application {
         return ret;
     }
 
-    private static void globalKeyPressedEvent(KeyEvent keyEvent) {
-        if (ctrlR.match(keyEvent)) {
-            ClearButton.fire();
-        } else if (ctrlS.match(keyEvent)) {
-            StopButton.fire();
-        } else if (ctrlF.match(keyEvent)) {
-            SearchBoxController.requestFocus();
-        }
-    }
-
     private static void logError(Thread t, Throwable e) {
         if (Platform.isFxApplicationThread()) {
             LOGGER.error("An error occurred in JavaFx thread", e);
@@ -138,76 +104,22 @@ public class Main extends Application {
         Thread.setDefaultUncaughtExceptionHandler(Main::logError);
         Main.application = this;
         Main.primaryStage = primaryStage;
-        Upgrade.init();
 
         // Main Scene
         VBox root = new VBox();
         Scene scene = new Scene(root, 1600, 800, Color.BLACK);
-        scene.setOnKeyPressed(Main::globalKeyPressedEvent);
-
-        //Tool Bar
-        ToolBar toolbar = new ToolBar();
-        // Set Pod Selector
-        toolbar.getItems().add(PodSelector.draw());
-
-        /* Central Area */
-
-        // Set Log Level Pill
-        TabPill<LogLevel> logLevelPill = new TabPill<>(LogLevel.class);
-        HBox.setHgrow(logLevelPill, Priority.ALWAYS);
-
-        // Buttons
-        HBox buttons = new HBox(ClearButton.draw(), StopButton.draw());
-        buttons.setAlignment(Pos.CENTER);
-        buttons.setStyle("-fx-padding: 0 20 0 20");
-        buttons.setSpacing(23);
-        buttons.setPrefWidth(Region.USE_PREF_SIZE);
-        //HBox.setHgrow(buttons, Priority.ALWAYS);
-
-        // Set Log Category Pill
-        TabPill<LogCategory> ulfCategoryPill = new TabPill<>(LogCategory.class);
-        HBox.setHgrow(ulfCategoryPill, Priority.ALWAYS);
-
-        HBox centralArea = new HBox(logLevelPill, buttons, ulfCategoryPill);
-        centralArea.setAlignment(Pos.CENTER);
-        centralArea.setStyle("-fx-padding: 0 20 0 20");
-        //centralArea.setSpacing(23);
-        toolbar.getItems().add(centralArea);
-        HBox.setHgrow(centralArea, Priority.ALWAYS);
-
-        // LogTabPane Event Listener
-        LogTabPane.addListener(new TabListener() {
-
-            @Override
-            public void onTabChange(LogTab newLogTab) {
-                ClearButton.changeTab(newLogTab);
-                StopButton.changeTab(newLogTab);
-                logLevelPill.changeTab(newLogTab);
-                ulfCategoryPill.changeTab(newLogTab);
-                SearchBoxController.changeTab(newLogTab);
-            }
-
-            @Override
-            public void onTabClosed(LogTab logTab) {
-                ClearButton.destroyTab(logTab);
-                StopButton.destroyTab(logTab);
-                logLevelPill.destroyTab(logTab);
-                ulfCategoryPill.destroyTab(logTab);
-                SearchBoxController.destroyTab(logTab);
+        scene.setOnKeyPressed(keyEvent -> {
+            MainTab SelectedTab = LogTabPane.getSelectedTab();
+            if (SelectedTab != null) {
+                SelectedTab.onGlobalKeyPressedEvent(keyEvent);
             }
         });
-
-        // Set Search Box
-        toolbar.getItems().add(SearchBoxController.draw());
-
-        // Set Info Button
-        toolbar.getItems().add(InfoButton.draw(scene));
 
         // Set Main Window
         String appCss = getClass().getClassLoader().getResource("App.css").toExternalForm();
 
         root.getStylesheets().add(appCss);
-        root.getChildren().addAll(toolbar, LogTabPane.draw(), preLoadJsonViewerPage());
+        root.getChildren().addAll(MainToolbar.draw(scene), LogTabPane.draw(), preLoadJsonViewerPage());
 
         // Workaround fix JVM bug JDK-8146479
         primaryStage.iconifiedProperty()
@@ -221,6 +133,8 @@ public class Main extends Application {
         });
         primaryStage.getIcons().addAll(getAppIcons());
         primaryStage.show();
+
+        ////Upgrade.init();
 
         //CSSFX.start();
         //ScenicView.show(scene);

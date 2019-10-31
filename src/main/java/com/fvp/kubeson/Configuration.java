@@ -36,4 +36,10 @@ public final class Configuration {
     public static final String GITHUB_RELEASES = "https://api.github.com/repos/fvp/kubeson/releases";
 
     public static final int CHECK_FOR_UPGRADE_WORKER_WAIT_TIME_MS = 43200000;
+
+    public static final String METRICS_IP = "192.168.99.100";
+
+    public static final String METRICS_KUBERNETES_SERVICE_PORT_NAME = "metrics";
+
+    public static final int MAX_METRICS_VALUE_HISTORY = 6;
 }

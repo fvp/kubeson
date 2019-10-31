@@ -1,6 +1,7 @@
 /* Root */
 .root {
     -fx-base: rgba(60, 63, 65, 255); // dark
+    -fx-font-family: Verdana;
 }
 
 /* Workaround fix JVM bug JDK-8146479 */
@@ -129,7 +130,7 @@
 }
 
 .selector-pod-name {
-    -fx-pref-width: 110px;
+    -fx-pref-width: 45px;
 }
 
 .selector-pod-name .combo-box-popup > .list-view {
@@ -218,6 +219,10 @@
 
 .tabred > * > .tab-label {
     -fx-text-fill: #e60000;
+}
+
+.tabblue > * > .tab-label {
+    -fx-text-fill: #3FA9CF;
 }
 
 .radio-menu-item:checked > .left-container > .radio {

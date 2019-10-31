@@ -5,19 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gemalto.rnd.logging</groupId>
     <artifactId>kubeson</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 
     <properties>
         <!-- If not specified in maven command line with "-Dhg.changeset.id=hash", hash is set to 000000000000 -->
         <hg.changeset.id>000000000000</hg.changeset.id>
         <project-changeset-id>${hg.changeset.id}</project-changeset-id>
-        <kubernetes-client.version>4.4.2</kubernetes-client.version>
+        <kubernetes-client.version>4.6.1</kubernetes-client.version>
         <log4j.version>2.12.1</log4j.version>
         <jackson.version>2.9.9</jackson.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <flowless.version>0.6.1</flowless.version>
         <proxy-vole.version>1.0.5</proxy-vole.version>
         <cssfx.version>1.1.1</cssfx.version>
+        <controlsfx.version>8.40.15</controlsfx.version>
 
         <!-- Plugins -->
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
@@ -105,6 +106,11 @@
             <groupId>org.fxmisc.flowless</groupId>
             <artifactId>flowless</artifactId>
             <version>${flowless.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>${controlsfx.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.markusbernhardt</groupId>

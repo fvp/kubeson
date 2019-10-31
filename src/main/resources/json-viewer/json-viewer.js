@@ -110,7 +110,7 @@ JSONViewer = (function() {
 								if (!item || item instanceof Date) {
 									li.appendChild(this._createSearchableText(frag, isArray ? undefined : key));
 									li.appendChild(this._createColonItem())
-									li.appendChild(this._createSimple(item ? item : null));
+									li.appendChild(this._createSimple(null, null, item));
 								}
 								// array & object
 								else {
@@ -207,9 +207,8 @@ JSONViewer = (function() {
 						frag.appendChild(this._createBracketItem(isArray ? "]" : "}"));
 						frag.querySelector("ul").classList.add("noborder");
 					}
-
-					break;
 				}
+				break;
 
 			default:
 				// simple values
@@ -362,7 +361,7 @@ JSONViewer = (function() {
 			}
 		}
 		fragment.appendChild(document.createTextNode(txt.substring(start)));
-		if(start > 0) {
+		if(node !== null && start > 0) {
 			node.foundSearch = true;
 		}		
 		
