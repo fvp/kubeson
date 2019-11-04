@@ -1,7 +1,6 @@
 package com.fvp.kubeson.common.gui;
 
-import java.io.InputStream;
-
+import com.fvp.kubeson.Main;
 import javafx.animation.PauseTransition;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Button;
@@ -25,9 +24,9 @@ public abstract class ButtonBase extends Button implements GlobalKeyPressedEvent
     protected ButtonBase(String iconPath, String shortcutText) {
         super.setPrefHeight(45);
         super.setFocusTraversable(false);
-        InputStream is = ButtonBase.class.getClassLoader().getResourceAsStream(iconPath);
-        if (is != null) {
-            super.setGraphic(new ImageView(new Image(is)));
+        Image img = Main.getImage(iconPath);
+        if (img != null) {
+            super.setGraphic(new ImageView(img));
         }
         createButtonTooltip(shortcutText);
     }

@@ -1,7 +1,6 @@
 package com.fvp.kubeson.logs.model;
 
-import java.io.InputStream;
-
+import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.gui.TabPillButtonList;
 import javafx.scene.image.Image;
 
@@ -24,12 +23,8 @@ public enum LogCategory implements TabPillButtonList {
     LogCategory(String name, String iconPathBig, String iconPathSmall, String subCategorySearch) {
         this.name = name;
         this.subCategorySearch = subCategorySearch;
-
-        InputStream is1 = getClass().getClassLoader().getResourceAsStream(iconPathBig);
-        this.iconBig = new Image(is1);
-
-        InputStream is2 = getClass().getClassLoader().getResourceAsStream(iconPathSmall);
-        this.iconSmall = new Image(is2);
+        this.iconBig = Main.getImage(iconPathBig);
+        this.iconSmall = Main.getImage(iconPathSmall);
     }
 
     @Override

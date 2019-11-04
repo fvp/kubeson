@@ -142,7 +142,7 @@ public final class K8SClient {
                 if (oldConfigMap != null) {
                     oldConfigMap.setFlag(flag);
                     if (!oldConfigMap.getResourceVersion().equals(configMap.getMetadata().getResourceVersion())) {
-                        oldConfigMap.updateConfigMap(configMap);
+                        oldConfigMap.setConfigMap(configMap);
                         changes.resourceUpdated(oldConfigMap);
                     }
                 } else {

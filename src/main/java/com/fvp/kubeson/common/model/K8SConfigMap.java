@@ -2,8 +2,6 @@ package com.fvp.kubeson.common.model;
 
 import static com.fvp.kubeson.common.model.K8SPod.APP_LABEL;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,17 +24,13 @@ public class K8SConfigMap implements Comparable<K8SConfigMap> {
 
     private long flag;
 
-    private List<ConfigMapChangeListener> listeners;
-
     public K8SConfigMap(ConfigMap configMap, long flag) {
         this.configMap = configMap;
         this.flag = flag;
-        this.listeners = new ArrayList<>();
     }
 
-    public void updateConfigMap(ConfigMap configMap) {
+    public void setConfigMap(ConfigMap configMap) {
         this.configMap = configMap;
-        this.listeners.forEach(listener -> listener.onConfigMapChange(this));
     }
 
     public long getFlag() {
@@ -92,14 +86,6 @@ public class K8SConfigMap implements Comparable<K8SConfigMap> {
                 });
             }
         });
-    }
-
-    public void addListener(ConfigMapChangeListener configMapChangeListener) {
-        listeners.add(configMapChangeListener);
-    }
-
-    public void removeListener(ConfigMapChangeListener configMapChangeListener) {
-        listeners.remove(configMapChangeListener);
     }
 
     @Override

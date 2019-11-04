@@ -1,5 +1,6 @@
 package com.fvp.kubeson.common.gui;
 
+import com.fvp.kubeson.Main;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -23,9 +24,9 @@ public final class InfoButton {
 
     static {
         infoLabel = new Label();
-        blueInfo = new Image(InfoButton.class.getClassLoader().getResourceAsStream("icons/info-blue.png"));
-        yellowInfo = new Image(InfoButton.class.getClassLoader().getResourceAsStream("icons/info-yellow.png"));
-        redInfo = new Image(InfoButton.class.getClassLoader().getResourceAsStream("icons/info-red.png"));
+        blueInfo = Main.getImage("icons/info-blue.png");
+        yellowInfo = Main.getImage("icons/info-yellow.png");
+        redInfo = Main.getImage("icons/info-red.png");
 
         imageView = new ImageView(blueInfo);
     }

@@ -1,7 +1,6 @@
 package com.fvp.kubeson.common.gui;
 
-import java.io.InputStream;
-
+import com.fvp.kubeson.Main;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -22,9 +21,9 @@ public class ToggleButtonBase extends ToggleButton implements GlobalKeyPressedEv
     protected ToggleButtonBase(String iconPath, String shortcutText) {
         super.setPrefHeight(45);
         super.setFocusTraversable(false);
-        InputStream is = ButtonBase.class.getClassLoader().getResourceAsStream(iconPath);
-        if (is != null) {
-            super.setGraphic(new ImageView(new Image(is)));
+        Image img = Main.getImage(iconPath);
+        if (img != null) {
+            super.setGraphic(new ImageView(img));
         }
         createButtonTooltip(shortcutText);
     }

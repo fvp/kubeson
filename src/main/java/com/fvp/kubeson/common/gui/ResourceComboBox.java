@@ -1,10 +1,10 @@
 package com.fvp.kubeson.common.gui;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.model.ItemType;
 import com.fvp.kubeson.common.model.SelectedItem;
 import com.fvp.kubeson.common.model.SelectorItem;
@@ -86,11 +86,8 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
             }
         });
 
-        InputStream id = getClass().getClassLoader().getResourceAsStream("icons/delete_13x13.png");
-        this.iconDelete = new Image(id);
-
-        InputStream im = getClass().getClassLoader().getResourceAsStream("icons/pie_13x13.png");
-        this.iconMetrics = new Image(im);
+        this.iconDelete = Main.getImage("icons/delete_13x13.png");
+        this.iconMetrics = Main.getImage("icons/pie_13x13.png");
     }
 
     @Override
