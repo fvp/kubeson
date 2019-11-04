@@ -14,8 +14,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.fvp.kubeson.Configuration;
+import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.controller.K8SApiException;
 import com.fvp.kubeson.common.controller.K8SClient;
+import com.fvp.kubeson.common.controller.K8SRequestCallback;
+import com.fvp.kubeson.common.controller.K8SRequestResult;
 import com.fvp.kubeson.common.util.CircularArrayList;
 import com.fvp.kubeson.common.util.ThreadFactory;
 import com.fvp.kubeson.logs.model.LogLine;
@@ -23,6 +26,7 @@ import com.fvp.kubeson.logs.model.LogSource;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,6 +48,8 @@ public class K8SPod {
 
     private Pod pod;
 
+    private long flag;
+
     private List<String> containers;
 
     private List<String> initContainers;
@@ -52,8 +58,9 @@ public class K8SPod {
 
     private int metricsNodePort;
 
-    public K8SPod(Pod pod) {
+    public K8SPod(Pod pod, long flag) {
         this.pod = pod;
+        this.flag = flag;
         this.podThreads = Collections.synchronizedMap(new HashMap<>());
         this.containers = new ArrayList<>();
         this.initContainers = new ArrayList<>();
@@ -69,6 +76,14 @@ public class K8SPod {
                 initContainers.add(containerStatus.getName());
             }
         }
+    }
+
+    public long getFlag() {
+        return flag;
+    }
+
+    public void setFlag(long flag) {
+        this.flag = flag;
     }
 
     public String getUid() {
@@ -132,8 +147,23 @@ public class K8SPod {
         return this.metricsNodePort > 0;
     }
 
-    public boolean delete() throws K8SApiException {
-        return K8SClient.deletePod(pod);
+    public void delete() {
+        delete(null);
+    }
+
+    public void delete(K8SRequestCallback requestCallback) {
+        ThreadFactory.newThread(() -> {
+            try {
+                K8SClient.deletePod(pod);
+                K8SRequestResult.apply(requestCallback, true);
+            } catch (K8SApiException e) {
+                LOGGER.error("Failed to delete pod " + getPodName(), e);
+                Platform.runLater(() -> {
+                    Main.showErrorMessage("Failed to delete pod " + getPodName(), e);
+                    K8SRequestResult.apply(requestCallback, false, e);
+                });
+            }
+        });
     }
 
     public void addListener(String container, LogSource logSource, PodLogFeedListener podLogFeedListener, boolean showLogsFromStart) {

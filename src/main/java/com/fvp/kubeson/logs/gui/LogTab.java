@@ -11,6 +11,7 @@ import java.util.Map;
 import com.fvp.kubeson.Configuration;
 import com.fvp.kubeson.common.controller.K8SClient;
 import com.fvp.kubeson.common.controller.K8SClientListener;
+import com.fvp.kubeson.common.controller.K8SResourceChange;
 import com.fvp.kubeson.common.gui.MainTab;
 import com.fvp.kubeson.common.model.ItemType;
 import com.fvp.kubeson.common.model.K8SConfigMap;
@@ -70,7 +71,7 @@ public class LogTab extends MainTab<LogToolbar> {
 
     private int logSourceColorIdx;
 
-    LogTab(File logFile) {
+    public LogTab(File logFile) {
         super(logFile.getName());
         LOGGER.debug("Creating tab for file [" + logFile + "]");
 
@@ -96,7 +97,7 @@ public class LogTab extends MainTab<LogToolbar> {
         }
     }
 
-    LogTab(List<SelectedItem> selectedItems, String name, boolean showLogsFromStart) {
+    public LogTab(List<SelectedItem> selectedItems, String name, boolean showLogsFromStart) {
         super(name);
         this.selectedItems = selectedItems;
         setRunning(true);
@@ -136,37 +137,30 @@ public class LogTab extends MainTab<LogToolbar> {
         this.k8sListener = new K8SClientListener() {
 
             @Override
-            public void onPodTerminated(K8SPod pod) {
-            }
-
-            @Override
-            public void onNewPod(K8SPod newPod) {
+            public void onPodChange(K8SResourceChange<K8SPod> changes) {
                 if (running >= 0) {
-                    for (SelectedItem selectedItem : selectedItems) {
-                        if (selectedItem.getType() == ItemType.LABEL && selectedItem.getText().equals(newPod.getAppLabel())) {
-                            LOGGER.debug("New {}. Stopping previous log stream and starting stream for new pod", newPod);
-                            selectedItem.getPod().removeListener(podLogFeedListener, false);
+                    for (K8SPod newPod : changes.getAdded()) {
+                        for (SelectedItem selectedItem : selectedItems) {
+                            if (selectedItem.getType() == ItemType.LABEL && selectedItem.getText().equals(newPod.getAppLabel())) {
+                                LOGGER.debug("New {}. Stopping previous log stream and starting stream for new pod", newPod);
+                                selectedItem.getPod().removeListener(podLogFeedListener, false);
 
-                            if (selectedItems.size() == 1) {
-                                reset();
+                                if (selectedItems.size() == 1) {
+                                    reset();
+                                }
+
+                                newPod.addListener(null, getLogSource(selectedItem.getText(), selectedItems.size()), podLogFeedListener, true);
+                                selectedItem.setPod(newPod);
+                                setRunning(true);
+                                return;
                             }
-
-                            newPod.addListener(null, getLogSource(selectedItem.getText(), selectedItems.size()), podLogFeedListener, true);
-                            selectedItem.setPod(newPod);
-                            setRunning(true);
-                            return;
                         }
                     }
                 }
             }
 
             @Override
-            public void onNewConfigMap(K8SConfigMap configMap) {
-
-            }
-
-            @Override
-            public void onConfigMapChange(K8SConfigMap configMap) {
+            public void onConfigMapChange(K8SResourceChange<K8SConfigMap> changes) {
 
             }
         };
@@ -366,11 +360,10 @@ public class LogTab extends MainTab<LogToolbar> {
     private void setRunning(boolean running) {
         if (running) {
             this.running = 1;
-            super.getStyleClass().remove("tabred");
         } else {
             this.running = 0;
-            super.getStyleClass().add("tabred");
         }
+        setStyle("tabred", !running);
     }
 
     @Override

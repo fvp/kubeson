@@ -1,7 +1,6 @@
 package com.fvp.kubeson.common.gui;
 
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -20,7 +19,7 @@ public final class MainToolbar {
     private MainToolbar() {
     }
 
-    public static Parent draw(Scene scene) {
+    public static Parent draw() {
         //Tool Bar
         toolbar = new ToolBar();
         // Set Pod Selector
@@ -30,7 +29,7 @@ public final class MainToolbar {
         toolbar.getItems().add(emptyToolbox);
 
         // Set Info Button
-        toolbar.getItems().add(InfoButton.draw(scene));
+        toolbar.getItems().add(InfoButton.draw());
 
         return toolbar;
     }

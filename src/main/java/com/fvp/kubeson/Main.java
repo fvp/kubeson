@@ -5,14 +5,18 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fvp.kubeson.common.controller.Upgrade;
+import com.fvp.kubeson.common.gui.InfoButton;
 import com.fvp.kubeson.common.gui.MainTab;
+import com.fvp.kubeson.common.gui.MainTabPane;
 import com.fvp.kubeson.common.gui.MainToolbar;
+import com.fvp.kubeson.common.gui.Notifications;
 import com.fvp.kubeson.common.util.ThreadFactory;
-import com.fvp.kubeson.logs.gui.LogTabPane;
 import com.sun.javafx.text.GlyphLayout;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
@@ -20,8 +24,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.action.Action;
 
 public class Main extends Application {
 
@@ -79,6 +85,45 @@ public class Main extends Application {
         return ret;
     }
 
+    public static void showErrorMessage(String title, Exception e) {
+        int idx = e.getMessage().indexOf(':');
+        String message = e.getMessage().substring(0, idx + 1) + "\n" + e.getMessage().substring(idx + 2);
+        showErrorMessage(title, message);
+    }
+
+    public static void showErrorMessage(String title, String message) {
+        Notifications.create()
+                .owner(primaryStage)
+                .darkStyle()
+                .position(Pos.BOTTOM_RIGHT)
+                .hideAfter(Duration.seconds(12))
+                .title(title)
+                .text(message)
+                .showError();
+    }
+
+    public static void showWarningMessage(String title, String message) {
+        Notifications.create()
+                .owner(primaryStage)
+                .darkStyle()
+                .position(Pos.BOTTOM_RIGHT)
+                .hideAfter(Duration.seconds(12))
+                .title(title)
+                .text(message)
+                .showWarning();
+    }
+
+    public static void showUpgradeMessage(String version) {
+        Notifications.create()
+                .owner(primaryStage)
+                .darkStyle()
+                .position(Pos.BOTTOM_RIGHT)
+                .hideAfter(Duration.seconds(12))
+                .title("Kubeson " + version + " is now available!")
+                .action(new Action("Click here to upgrade", event -> InfoButton.fire()))
+                .showInformation();
+    }
+
     private static void logError(Thread t, Throwable e) {
         if (Platform.isFxApplicationThread()) {
             LOGGER.error("An error occurred in JavaFx thread", e);
@@ -109,7 +154,7 @@ public class Main extends Application {
         VBox root = new VBox();
         Scene scene = new Scene(root, 1600, 800, Color.BLACK);
         scene.setOnKeyPressed(keyEvent -> {
-            MainTab SelectedTab = LogTabPane.getSelectedTab();
+            MainTab SelectedTab = MainTabPane.getSelectedTab();
             if (SelectedTab != null) {
                 SelectedTab.onGlobalKeyPressedEvent(keyEvent);
             }
@@ -119,7 +164,7 @@ public class Main extends Application {
         String appCss = getClass().getClassLoader().getResource("App.css").toExternalForm();
 
         root.getStylesheets().add(appCss);
-        root.getChildren().addAll(MainToolbar.draw(scene), LogTabPane.draw(), preLoadJsonViewerPage());
+        root.getChildren().addAll(MainToolbar.draw(), MainTabPane.draw(), preLoadJsonViewerPage());
 
         // Workaround fix JVM bug JDK-8146479
         primaryStage.iconifiedProperty()
@@ -134,7 +179,7 @@ public class Main extends Application {
         primaryStage.getIcons().addAll(getAppIcons());
         primaryStage.show();
 
-        ////Upgrade.init();
+        Upgrade.init();
 
         //CSSFX.start();
         //ScenicView.show(scene);

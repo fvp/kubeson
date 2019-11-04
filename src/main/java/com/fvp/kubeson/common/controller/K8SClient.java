@@ -2,12 +2,12 @@ package com.fvp.kubeson.common.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -17,9 +17,7 @@ import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.K8SPod;
 import com.fvp.kubeson.common.model.SelectorItem;
 import com.fvp.kubeson.common.util.ThreadFactory;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -34,9 +32,11 @@ public final class K8SClient {
 
     private static Logger LOGGER = LogManager.getLogger();
 
+    private static Random random;
+
     private static KubernetesClient client;
 
-    private static List<K8SPod> pods;
+    private static Map<String, K8SPod> pods;
 
     private static Map<String, K8SConfigMap> configMaps;
 
@@ -47,7 +47,8 @@ public final class K8SClient {
     private static int k8sClientGetConfigMapsAttempts;
 
     static {
-        pods = Collections.synchronizedList(new ArrayList<>());
+        random = new Random();
+        pods = new ConcurrentHashMap<>();
         configMaps = new ConcurrentHashMap<>();
         k8sListeners = new ArrayList<>();
         client = new DefaultKubernetesClient();
@@ -78,67 +79,100 @@ public final class K8SClient {
     }
 
     private static void updatePods() {
+        K8SResourceChange<K8SPod> changes = new K8SResourceChange<>();
+
         try {
-            PodList podList = client.pods().list();
-            boolean found;
+            final long flag = random.nextLong();
 
             // Add New Pods
-            for (Pod item : podList.getItems()) {
-                if (!K8SPod.STATUS_PENDING.equals(item.getStatus().getPhase())) {
-                    found = false;
-                    for (K8SPod pod : pods) {
-                        if (pod.getUid().equals(item.getMetadata().getUid())) {
-                            found = true;
-                            pod.setState(item.getStatus().getPhase());
-                            break;
+            client.pods().list().getItems().forEach(pod -> {
+                if (!K8SPod.STATUS_PENDING.equals(pod.getStatus().getPhase())) {
+                    K8SPod oldPod = pods.get(pod.getMetadata().getUid());
+                    if (oldPod != null) {
+                        oldPod.setFlag(flag);
+                        if (!oldPod.getState().equals(pod.getStatus().getPhase())) {
+                            oldPod.setState(pod.getStatus().getPhase());
+                            changes.resourceUpdated(oldPod);
                         }
-                    }
-                    if (!found) {
-                        K8SPod newPod = createNewPod(item);
-                        pods.add(newPod);
-                        k8sListeners.forEach(listener -> listener.onNewPod(newPod));
+                    } else {
+                        K8SPod newPod = new K8SPod(pod, flag);
+                        setMetricsNodePort(newPod);
+                        pods.put(pod.getMetadata().getUid(), newPod);
+                        changes.resourceAdded(newPod);
                     }
                 }
-            }
+            });
 
             // Terminate Pods
-            for (Iterator<K8SPod> iterator = pods.iterator(); iterator.hasNext(); ) {
-                K8SPod pod = iterator.next();
-                found = false;
-                for (Pod item : podList.getItems()) {
-                    if (pod.getUid().equals(item.getMetadata().getUid())) {
-                        found = true;
-                        pod.setState(item.getStatus().getPhase());
-                        break;
-                    }
+            pods.forEach((uid, pod) -> {
+                if (pod.getFlag() != flag) {
+                    pod.terminate();
+                    changes.resourceRemoved(pod);
+                    pods.remove(uid);
                 }
-                if (!found) {
-                    terminatePod(pod);
-                    iterator.remove();
-                }
-            }
+            });
         } catch (Exception e) {
             if (k8sClientGetPodsAttempts > Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS) {
                 LOGGER.error("Failed to get kubernetes pod info after " + Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS + " attempts. Stopping all pods", e);
-                pods.forEach(K8SClient::terminatePod);
+                pods.forEach((uid, pod) -> {
+                    changes.resourceRemoved(pod);
+                    pod.terminate();
+                });
                 pods.clear();
                 k8sClientGetPodsAttempts = 0;
             } else {
                 k8sClientGetPodsAttempts++;
             }
         }
+
+        if (changes.hasChanges()) {
+            k8sListeners.forEach(listener -> listener.onPodChange(changes));
+        }
     }
 
-    private static void terminatePod(K8SPod pod) {
-        pod.terminate();
-        k8sListeners.forEach(listener -> listener.onPodTerminated(pod));
-    }
+    private static void updateConfigMaps() {
+        K8SResourceChange<K8SConfigMap> changes = new K8SResourceChange<>();
 
-    private static K8SPod createNewPod(Pod item) {
-        K8SPod pod = new K8SPod(item);
-        setMetricsNodePort(pod);
+        try {
+            final long flag = random.nextLong();
 
-        return pod;
+            // Add or Update Config Maps
+            client.configMaps().list().getItems().forEach(configMap -> {
+                K8SConfigMap oldConfigMap = configMaps.get(configMap.getMetadata().getUid());
+                if (oldConfigMap != null) {
+                    oldConfigMap.setFlag(flag);
+                    if (!oldConfigMap.getResourceVersion().equals(configMap.getMetadata().getResourceVersion())) {
+                        oldConfigMap.updateConfigMap(configMap);
+                        changes.resourceUpdated(oldConfigMap);
+                    }
+                } else {
+                    K8SConfigMap newConfigMap = new K8SConfigMap(configMap, flag);
+                    configMaps.put(configMap.getMetadata().getUid(), newConfigMap);
+                    changes.resourceAdded(newConfigMap);
+                }
+            });
+
+            // Remove Config Maps
+            configMaps.forEach((uid, configMap) -> {
+                if (configMap.getFlag() != flag) {
+                    changes.resourceRemoved(configMap);
+                    configMaps.remove(uid);
+                }
+            });
+        } catch (Exception e) {
+            if (k8sClientGetConfigMapsAttempts > Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS) {
+                LOGGER.error("Failed to get kubernetes config map info after " + Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS + " attempts", e);
+                configMaps.forEach((uid, configMap) -> changes.resourceRemoved(configMap));
+                configMaps.clear();
+                k8sClientGetConfigMapsAttempts = 0;
+            } else {
+                k8sClientGetConfigMapsAttempts++;
+            }
+        }
+
+        if (changes.hasChanges()) {
+            k8sListeners.forEach(listener -> listener.onConfigMapChange(changes));
+        }
     }
 
     private static void setMetricsNodePort(K8SPod pod) {
@@ -158,48 +192,20 @@ public final class K8SClient {
         }
     }
 
-    private static void updateConfigMaps() {
-        try {
-            for (ConfigMap configMap : client.configMaps().list().getItems()) {
-
-                K8SConfigMap oldConfigMap = configMaps.get(configMap.getMetadata().getUid());
-                if (oldConfigMap != null) {
-                    if (!oldConfigMap.getResourceVersion().equals(configMap.getMetadata().getResourceVersion())) {
-                        oldConfigMap.updateConfigMap(configMap);
-                        k8sListeners.forEach(listener -> listener.onConfigMapChange(oldConfigMap));
-                    }
-                } else {
-                    K8SConfigMap newConfigMap = new K8SConfigMap(configMap);
-                    configMaps.put(configMap.getMetadata().getUid(), newConfigMap);
-                    k8sListeners.forEach(listener -> listener.onNewConfigMap(newConfigMap));
-                }
-            }
-        } catch (Exception e) {
-            if (k8sClientGetConfigMapsAttempts > Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS) {
-                LOGGER.error("Failed to get kubernetes config map info after " + Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS + " attempts", e);
-                configMaps.clear();
-                k8sClientGetConfigMapsAttempts = 0;
-            } else {
-                k8sClientGetConfigMapsAttempts++;
-            }
-        }
-    }
-
     public static Set<String> getNamespaces() {
         final Set<String> namespaces = new HashSet<>();
-        pods.forEach(pod -> namespaces.add(pod.getNamespace()));
+        pods.forEach((uid, pod) -> namespaces.add(pod.getNamespace()));
         return namespaces;
     }
 
     public static List<SelectorItem> getPodSelectorList(String namespace) {
-        List<SelectorItem> res = new ArrayList<>();
+        Map<String, K8SPod> appLabelPods = new TreeMap<>();
+        List<SelectorItem> podItems = new ArrayList<>();
+        List<SelectorItem> configMapItems = new ArrayList<>();
 
-        // APP Labels
-        List<SelectorItem> apps = new ArrayList<>();
-        Map<String, K8SPod> appLabelPods = new HashMap<>();
-        res.add(new SelectorItem("App Labels:"));
-        pods.forEach((pod) -> {
+        pods.forEach((uid, pod) -> {
             if (pod.getNamespace().equals(namespace)) {
+                // APP Labels
                 String appLabel = pod.getAppLabel();
                 if (appLabel != null) {
                     K8SPod appLabelPod = appLabelPods.get(appLabel);
@@ -207,17 +213,8 @@ public final class K8SClient {
                         appLabelPods.put(appLabel, pod);
                     }
                 }
-            }
-        });
-        appLabelPods.forEach((appLabel, pod) -> apps.add(new SelectorItem(pod, appLabel, ItemType.LABEL)));
-        Collections.sort(apps);
-        res.addAll(apps);
 
-        // PODs
-        List<SelectorItem> podItems = new ArrayList<>();
-        res.add(new SelectorItem("Pods:"));
-        pods.forEach((pod) -> {
-            if (pod.getNamespace().equals(namespace)) {
+                // PODs
                 if (pod.getContainers().size() < 2) {
                     podItems.add(new SelectorItem(pod, pod.getPodName(), ItemType.POD));
                 }
@@ -229,31 +226,23 @@ public final class K8SClient {
                 });
             }
         });
-        Collections.sort(podItems);
-        res.addAll(podItems);
-
-        //Metrics
-        List<SelectorItem> metricItems = new ArrayList<>();
-        res.add(new SelectorItem("Metrics:"));
-        pods.forEach((pod) -> {
-            if (pod.getNamespace().equals(namespace)) {
-                if (pod.hasMetrics()) {
-                    metricItems.add(new SelectorItem(pod, pod.getPodName(), ItemType.METRICS));
-                }
-            }
-        });
-        Collections.sort(metricItems);
-        res.addAll(metricItems);
 
         //Config Maps
-        List<SelectorItem> configMapItems = new ArrayList<>();
-        res.add(new SelectorItem("Config Maps:"));
         configMaps.forEach((uid, configMap) -> {
             if (configMap.getNamespace().equals(namespace)) {
                 configMapItems.add(new SelectorItem(configMap, configMap.getName(), ItemType.CONFIG_MAP));
             }
         });
+
+        Collections.sort(podItems);
         Collections.sort(configMapItems);
+
+        List<SelectorItem> res = new ArrayList<>();
+        res.add(new SelectorItem("App Labels:"));
+        appLabelPods.forEach((appLabel, pod) -> res.add(new SelectorItem(pod, appLabel, ItemType.LABEL)));
+        res.add(new SelectorItem("Pods:"));
+        res.addAll(podItems);
+        res.add(new SelectorItem("Config Maps:"));
         res.addAll(configMapItems);
 
         return res;
@@ -283,7 +272,7 @@ public final class K8SClient {
     public static List<K8SPod> getPodsByLabel(String labelName, String labelValue) {
         List<K8SPod> res = new ArrayList<>();
 
-        pods.forEach((pod) -> {
+        pods.forEach((uid, pod) -> {
             if (pod.containsLabel(labelName, labelValue)) {
                 res.add(pod);
             }
@@ -292,9 +281,9 @@ public final class K8SClient {
         return res;
     }
 
-    public static void updateConfigMapData(String namespace, String configMapName, String filename, String content) throws K8SApiException {
+    public static void updateConfigMapData(String namespace, String configMapName, String dataName, String content) throws K8SApiException {
         try {
-            client.configMaps().inNamespace(namespace).withName(configMapName).edit().addToData(filename, content).done();
+            client.configMaps().inNamespace(namespace).withName(configMapName).edit().addToData(dataName, content).done();
         } catch (Exception e) {
             throw new K8SApiException(e);
         }

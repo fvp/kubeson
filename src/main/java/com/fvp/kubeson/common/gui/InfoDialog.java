@@ -10,7 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 class InfoDialog extends Alert {
 
@@ -20,7 +19,7 @@ class InfoDialog extends Alert {
 
     private Label upgradeMessage;
 
-    InfoDialog(Window parentWindow) {
+    InfoDialog() {
         super(AlertType.INFORMATION);
 
         upgradeButton = new Button("Upgrade");
@@ -53,10 +52,11 @@ class InfoDialog extends Alert {
         getDialogPane().getStyleClass().add("info-dialog");
 
         // Set Icon
+        Stage primaryStage = Main.getPrimaryStage();
         Stage stage = (Stage) getDialogPane().getScene().getWindow();
         stage.getIcons().addAll(Main.getAppIcons());
-        stage.setX(parentWindow.getX() + parentWindow.getWidth() / 2 - 340);
-        stage.setY(parentWindow.getY() + parentWindow.getHeight() / 2 - 220);
+        stage.setX(primaryStage.getX() + primaryStage.getWidth() / 2 - 340);
+        stage.setY(primaryStage.getY() + primaryStage.getHeight() / 2 - 220);
     }
 
     void refreshUpgrade() {

@@ -22,13 +22,13 @@ public final class MetricsToolbar extends IToolbar {
         expandAllButton = new ExpandAllButton(metricTab);
         collapseAllButton = new CollapseAllButton(metricTab);
 
-        HBox centralArea = new HBox(automaticButton, refreshButton, expandAllButton, collapseAllButton);
+        HBox centralArea = new HBox(automaticButton, refreshButton, collapseAllButton, expandAllButton);
         centralArea.setSpacing(40);
         centralArea.setAlignment(Pos.CENTER);
 
         HBox.setHgrow(centralArea, Priority.ALWAYS);
 
-        addListeners(automaticButton, refreshButton, expandAllButton, collapseAllButton);
+        registerListeners(automaticButton, refreshButton, expandAllButton, collapseAllButton);
         addToolbarItem(centralArea);
     }
 }

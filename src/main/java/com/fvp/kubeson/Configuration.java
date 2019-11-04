@@ -42,4 +42,6 @@ public final class Configuration {
     public static final String METRICS_KUBERNETES_SERVICE_PORT_NAME = "metrics";
 
     public static final int MAX_METRICS_VALUE_HISTORY = 6;
+
+    public static final long METRICS_AUTOMATIC_REFRESH_DELAY_MS = 2000;
 }

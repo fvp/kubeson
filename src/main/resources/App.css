@@ -130,7 +130,7 @@
 }
 
 .selector-pod-name {
-    -fx-pref-width: 45px;
+    -fx-pref-width: 110px;
 }
 
 .selector-pod-name .combo-box-popup > .list-view {

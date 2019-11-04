@@ -60,7 +60,7 @@ public class LogToolbar extends IToolbar {
         hBox.setMinWidth(470);
         hBox.prefWidth(470);
 
-        addListeners(clearButton, stopButton, searchBox);
+        registerListeners(clearButton, stopButton, searchBox);
         addToolbarItem(hBox);
     }
 

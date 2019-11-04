@@ -1,13 +1,12 @@
-package com.fvp.kubeson.logs.gui;
+package com.fvp.kubeson.common.gui;
 
 import java.io.File;
 import java.util.List;
 
-import com.fvp.kubeson.common.gui.MainTab;
-import com.fvp.kubeson.common.gui.MainToolbar;
 import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.SelectedItem;
 import com.fvp.kubeson.configmap.gui.ConfigMapTab;
+import com.fvp.kubeson.logs.gui.LogTab;
 import com.fvp.kubeson.metrics.gui.MetricsTab;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
@@ -18,22 +17,26 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-public final class LogTabPane {
+public final class MainTabPane {
 
-    private static TabPane logTabPane;
+    private static TabPane mainTabPane;
 
     static {
         initLogTabPane();
     }
 
-    private LogTabPane() {
+    private MainTabPane() {
+    }
+
+    public static TabPane getMainTabPane() {
+        return mainTabPane;
     }
 
     private static void initLogTabPane() {
-        logTabPane = new TabPane();
-        logTabPane.setStyle("-fx-background-color: black;");
-        logTabPane.setFocusTraversable(false);
-        logTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        mainTabPane = new TabPane();
+        mainTabPane.setStyle("-fx-background-color: black;");
+        mainTabPane.setFocusTraversable(false);
+        mainTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             MainTab tab = (MainTab) newValue;
             if (tab != null) {
                 tab.onSelected();
@@ -41,18 +44,18 @@ public final class LogTabPane {
                 MainToolbar.clear();
             }
         });
-        logTabPane.setOnKeyPressed(keyEvent -> {
+        mainTabPane.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.DOWN) {
                 keyEvent.consume();
             }
         });
-        logTabPane.setOnDragOver((event) -> {
-            if (event.getGestureSource() != logTabPane && event.getDragboard().hasFiles()) {
+        mainTabPane.setOnDragOver((event) -> {
+            if (event.getGestureSource() != mainTabPane && event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
             event.consume();
         });
-        logTabPane.setOnDragDropped((event) -> {
+        mainTabPane.setOnDragDropped((event) -> {
             Dragboard db = event.getDragboard();
             boolean success = false;
             if (db.hasFiles()) {
@@ -63,70 +66,70 @@ public final class LogTabPane {
             event.setDropCompleted(success);
             event.consume();
         });
-        VBox.setVgrow(logTabPane, Priority.ALWAYS);
+        VBox.setVgrow(mainTabPane, Priority.ALWAYS);
     }
 
     public static Parent draw() {
-        return logTabPane;
+        return mainTabPane;
     }
 
     public static boolean createMetricTab(SelectedItem selectedItem, String name) {
         // Return false if Tab with same name already exists
-        for (Tab tab : logTabPane.getTabs()) {
+        for (Tab tab : mainTabPane.getTabs()) {
             if (tab.getText().equals(name)) {
                 return false;
             }
         }
 
-        logTabPane.getTabs().add(new MetricsTab(selectedItem, name));
-        logTabPane.getSelectionModel().selectLast();
+        mainTabPane.getTabs().add(new MetricsTab(selectedItem, name));
+        mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
     public static boolean createConfigMapTab(K8SConfigMap configMap, String name) {
         // Return false if Tab with same name already exists
-        for (Tab tab : logTabPane.getTabs()) {
+        for (Tab tab : mainTabPane.getTabs()) {
             if (tab.getText().equals(name)) {
                 return false;
             }
         }
 
-        logTabPane.getTabs().add(new ConfigMapTab(configMap, name));
-        logTabPane.getSelectionModel().selectLast();
+        mainTabPane.getTabs().add(new ConfigMapTab(configMap, name));
+        mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
     public static boolean createLogTab(List<SelectedItem> selectedItems, String name) {
         // Return false if Tab with same name already exists
-        for (Tab tab : logTabPane.getTabs()) {
+        for (Tab tab : mainTabPane.getTabs()) {
             if (tab.getText().equals(name)) {
                 return false;
             }
         }
 
-        logTabPane.getTabs().add(new LogTab(selectedItems, name, true));
-        logTabPane.getSelectionModel().selectLast();
+        mainTabPane.getTabs().add(new LogTab(selectedItems, name, true));
+        mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
     private static boolean createLogTab(File logFile) {
         // Return false if Tab with same name already exists
-        for (Tab tab : logTabPane.getTabs()) {
+        for (Tab tab : mainTabPane.getTabs()) {
             if (tab.getTooltip() != null && logFile.toString().equals(tab.getTooltip().getText())) {
                 return false;
             }
         }
         LogTab logTab = new LogTab(logFile);
-        logTabPane.getTabs().add(logTab);
-        logTabPane.getSelectionModel().selectLast();
+        mainTabPane.getTabs().add(logTab);
+        mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
     public static MainTab getSelectedTab() {
-        return (MainTab) logTabPane.getSelectionModel().getSelectedItem();
+        return (MainTab) mainTabPane.getSelectionModel().getSelectedItem();
     }
 }

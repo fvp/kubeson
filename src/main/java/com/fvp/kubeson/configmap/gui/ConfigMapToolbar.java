@@ -24,7 +24,11 @@ public class ConfigMapToolbar extends IToolbar {
 
         HBox.setHgrow(centralArea, Priority.ALWAYS);
 
-        addListeners(saveConfigMapDataButton, deletePodsButton);
+        registerListeners(saveConfigMapDataButton, deletePodsButton);
         addToolbarItem(centralArea);
+    }
+
+    public void refreshConfigMapDataNameSelector() {
+        configMapDataNameSelector.refresh();
     }
 }

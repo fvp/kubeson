@@ -47,6 +47,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fvp.kubeson.Configuration;
+import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.gui.InfoButton;
 import com.fvp.kubeson.common.util.ThreadFactory;
 import com.github.markusbernhardt.proxy.ProxySearch;
@@ -152,9 +153,18 @@ public final class Upgrade {
     }
 
     public static void setState(UpgradeState state, String errorMessage) {
+        final String version;
+        if (releaseToUpgrade != null) {
+            version = releaseToUpgrade.tagName;
+        } else {
+            version = "";
+        }
         switch (state) {
             case UPGRADE_AVAILABLE:
-                Platform.runLater(InfoButton::setYellow);
+                Platform.runLater(() -> {
+                    InfoButton.setYellow();
+                    Main.showUpgradeMessage(version);
+                });
                 break;
             case UPGRADE_ERROR:
                 Platform.runLater(InfoButton::setRed);
@@ -162,10 +172,6 @@ public final class Upgrade {
             case UPGRADE_SUCCESSFUL:
                 Platform.runLater(InfoButton::setBlue);
                 break;
-        }
-        String version = "";
-        if (releaseToUpgrade != null) {
-            version = releaseToUpgrade.tagName;
         }
         message = String.format(state.getMessage(), version, errorMessage);
         upgradeState = state;

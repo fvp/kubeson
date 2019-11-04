@@ -124,7 +124,7 @@ public class LogListView {
 
         listView.setOnKeyReleased(keyEvent -> {
             if (ctrlC.match(keyEvent)) {
-                export.copySelectedLogLineToClipboard();
+                export.copySelectedLogLineToClipboard(true);
             } else if (keyEvent.getCode() == KeyCode.UP) {
                 int idx = getSelectedIndex();
                 if (idx > 0) {
@@ -182,8 +182,12 @@ public class LogListView {
                 contextMenu.getItems().clear();
                 if (getSelectedLogLine() != null) {
                     MenuItem copy = new MenuItem("Copy");
-                    copy.setOnAction(e1 -> export.copySelectedLogLineToClipboard());
+                    copy.setOnAction(e1 -> export.copySelectedLogLineToClipboard(false));
                     contextMenu.getItems().add(copy);
+
+                    MenuItem copyPrettyPrinted = new MenuItem("Copy Pretty Printed");
+                    copyPrettyPrinted.setOnAction(e1 -> export.copySelectedLogLineToClipboard(true));
+                    contextMenu.getItems().add(copyPrettyPrinted);
                 }
                 if (logTab.getSearchManager().hasSearch()) {
                     addSeparator(contextMenu);
@@ -426,11 +430,11 @@ public class LogListView {
 
         private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneId.systemDefault());
 
-        private void copySelectedLogLineToClipboard() {
+        private void copySelectedLogLineToClipboard(boolean prettyPrint) {
             LogLineContainer logLineContainer = getSelectedLogLine();
             if (logLineContainer != null) {
                 ClipboardContent clipboard = new ClipboardContent();
-                clipboard.putString(logLineContainer.getLogLine().getRawText());
+                clipboard.putString(logLineContainer.getLogLine().getRawText(prettyPrint));
                 Clipboard.getSystemClipboard().setContent(clipboard);
             }
         }

@@ -1,17 +1,11 @@
 package com.fvp.kubeson.common.gui;
 
-import javafx.animation.PauseTransition;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
-import javafx.util.Duration;
-import org.controlsfx.control.PopOver;
-import org.controlsfx.control.PopOver.ArrowLocation;
 
 public final class InfoButton {
 
@@ -25,41 +19,27 @@ public final class InfoButton {
 
     private static InfoDialog dialog;
 
-    static Label infoLabel = new Label();
-
-    private static PopOver upgradePopUp = new PopOver();
+    private static Label infoLabel;
 
     static {
+        infoLabel = new Label();
         blueInfo = new Image(InfoButton.class.getClassLoader().getResourceAsStream("icons/info-blue.png"));
         yellowInfo = new Image(InfoButton.class.getClassLoader().getResourceAsStream("icons/info-yellow.png"));
         redInfo = new Image(InfoButton.class.getClassLoader().getResourceAsStream("icons/info-red.png"));
 
         imageView = new ImageView(blueInfo);
-
-        upgradePopUp.setContentNode(new Text("Upgrade\nAvailable!"));
-        upgradePopUp.setDetachable(false);
-        upgradePopUp.setTitle("   Tip");
-        upgradePopUp.setCloseButtonEnabled(true);
-        upgradePopUp.setArrowLocation(ArrowLocation.RIGHT_TOP);
-        upgradePopUp.setFadeInDuration(Duration.millis(500));
-        upgradePopUp.setFadeOutDuration(Duration.millis(500));
-        upgradePopUp.setHeaderAlwaysVisible(true);
-        upgradePopUp.setAutoHide(true);
-        upgradePopUp.getStyleClass().add("popover");
-        upgradePopUp.setHideOnEscape(true);
     }
 
     private InfoButton() {
     }
 
-    public static Node draw(Scene scene) {
+    public static Node draw() {
         infoLabel = new Label();
         infoLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         infoLabel.setGraphic(imageView);
         infoLabel.setTooltip(new Tooltip("INFO"));
         infoLabel.setOnMouseClicked(event -> {
-            dialog = new InfoDialog(scene.getWindow());
-            dialog.showAndWait();
+            fire();
         });
 
         return infoLabel;
@@ -71,7 +51,6 @@ public final class InfoButton {
 
     public static void setYellow() {
         imageView.setImage(yellowInfo);
-        showPopup();
     }
 
     public static void setRed() {
@@ -84,10 +63,8 @@ public final class InfoButton {
         }
     }
 
-    public static void showPopup() {
-        upgradePopUp.show(infoLabel, -5);
-        PauseTransition pause = new PauseTransition(Duration.seconds(15));
-        pause.setOnFinished(evt -> upgradePopUp.hide());
-        pause.play();
+    public static void fire() {
+        dialog = new InfoDialog();
+        dialog.showAndWait();
     }
 }

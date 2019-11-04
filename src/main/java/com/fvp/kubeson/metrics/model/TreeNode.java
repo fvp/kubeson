@@ -20,7 +20,11 @@ public class TreeNode extends HBox {
 
     private static final String WHITE = "#ffffff";
 
-    private String value;
+    private static final String LIGHT_BLUE = "#90CAF9";
+
+    private TreeItem<TreeNode> treeItem;
+
+    private String metricName;
 
     private TreeNode() {
     }
@@ -32,13 +36,15 @@ public class TreeNode extends HBox {
     public static TreeItem<TreeNode> create(Metric metric) {
         TreeNode treeNode = new TreeNode();
         treeNode.init(metric);
-        return new TreeItem<>(treeNode);
+        treeNode.treeItem = new TreeItem<>(treeNode);
+        return treeNode.treeItem;
     }
 
     public static TreeItem<TreeNode> create(MetricValue metricValue) {
         TreeNode treeNode = new TreeNode();
         treeNode.init(metricValue);
-        return new TreeItem<>(treeNode);
+        treeNode.treeItem = new TreeItem<>(treeNode);
+        return treeNode.treeItem;
     }
 
     private void init(Node... nodes) {
@@ -47,23 +53,12 @@ public class TreeNode extends HBox {
     }
 
     private void init(Metric metric) {
+        this.metricName = metric.getName();
         TextFlow tf = new TextFlow();
-
-        Text metricName = new Text(metric.getName());
-        metricName.setFill(Color.WHITE);
-        metricName.setStyle("-fx-font-weight: bolder;-fx-font-size: 14px;");
-        tf.getChildren().add(metricName);
+        tf.getChildren().add(getText(WHITE, metric.getName()));
 
         if (metric.getDescription() != null) {
-            Text slash = new Text(" - ");
-            slash.setFill(Color.web("#e6df44"));
-            slash.setStyle("-fx-font-weight: bolder;-fx-font-size: 14px;");
-
-            Text description = new Text(metric.getDescription());
-            description.setFill(Color.web("#90CAF9"));
-            description.setStyle("-fx-font-weight: bolder;-fx-font-size: 14px;");
-
-            tf.getChildren().addAll(slash, description);
+            tf.getChildren().addAll(getText(YELLOW, " - "), getText(LIGHT_BLUE, metric.getDescription()));
         }
 
         init(tf);
@@ -105,12 +100,16 @@ public class TreeNode extends HBox {
     private Text getText(String color, String text) {
         Text ret = new Text(text);
         ret.setFill(Color.web(color));
-        ret.setStyle("-fx-font-weight: bolder;-fx-font-size: 14px;");
+        ret.setStyle("-fx-font-weight: bolder;-fx-font-size: 13px;");
 
         return ret;
     }
 
-    public String getValue() {
-        return value;
+    public void setExpanded(boolean value) {
+        treeItem.setExpanded(value);
+    }
+
+    public String getMetricName() {
+        return metricName;
     }
 }

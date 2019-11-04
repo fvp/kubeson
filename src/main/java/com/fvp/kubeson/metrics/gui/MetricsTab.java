@@ -5,7 +5,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.fvp.kubeson.Configuration;
+import com.fvp.kubeson.common.controller.K8SClient;
+import com.fvp.kubeson.common.controller.K8SClientListener;
+import com.fvp.kubeson.common.controller.K8SResourceChange;
 import com.fvp.kubeson.common.gui.MainTab;
+import com.fvp.kubeson.common.model.K8SConfigMap;
+import com.fvp.kubeson.common.model.K8SPod;
 import com.fvp.kubeson.common.model.SelectedItem;
 import com.fvp.kubeson.common.util.NullMultipleSelectionModel;
 import com.fvp.kubeson.common.util.ThreadFactory;
@@ -14,8 +19,10 @@ import com.fvp.kubeson.metrics.model.Metrics;
 import com.fvp.kubeson.metrics.model.TreeNode;
 import com.fvp.kubeson.metrics.util.PrometheusMetricsParser;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import okhttp3.OkHttpClient;
@@ -38,9 +45,11 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
 
     private ThreadLock metricsRefreshLock;
 
-    private volatile long refreshTime;
-
     private Set<String> hiddenMetrics;
+
+    private K8SClientListener k8sListener;
+
+    private volatile boolean running;
 
     public MetricsTab(SelectedItem selectedItem, String name) {
         super(name);
@@ -57,14 +66,63 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
         metricsView.setShowRoot(false);
         metricsView.setRoot(treeRoot);
         metricsView.setSelectionModel(new NullMultipleSelectionModel<>());
+        metricsView.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            Node node = event.getPickResult().getIntersectedNode();
+
+            if (node != null && node.getParent() != null && node.getParent().getParent() instanceof TreeNode) {
+                TreeNode treeNode = (TreeNode) node.getParent().getParent();
+
+                if (treeNode.getMetricName() != null) {
+                    if (hiddenMetrics.contains(treeNode.getMetricName())) {
+                        hiddenMetrics.remove(treeNode.getMetricName());
+                        treeNode.setExpanded(true);
+                    } else {
+                        hiddenMetrics.add(treeNode.getMetricName());
+                        treeNode.setExpanded(false);
+                    }
+                }
+            }
+        });
 
         metricApi = new Request.Builder().url("http://" + Configuration.METRICS_IP + ":" + selectedItem.getPod().getMetricsNodePort() + "/metrics").build();
-        refreshTime = 2000;
 
         metricsView.setStyle("-fx-background-color: black;-fx-control-inner-background: black;");
 
+        this.k8sListener = new K8SClientListener() {
+
+            @Override
+            public void onPodChange(K8SResourceChange<K8SPod> changes) {
+                changes.filter(pod -> selectedItem.getPod().getMetricsNodePort() == pod.getMetricsNodePort())
+                        .forEachAdded(podAdded -> {
+                            setRunning(true);
+                            refreshMetrics();
+                        })
+                        .forEachRemoved(podRemoved -> {
+                            setRunning(false);
+                        });
+            }
+
+            @Override
+            public void onConfigMapChange(K8SResourceChange<K8SConfigMap> changes) {
+
+            }
+        };
+        K8SClient.addListener(k8sListener);
+
+        super.setOnClosed((event) -> {
+            K8SClient.removeListener(k8sListener);
+        });
+
         super.setContent(metricsView);
+
+        setRunning(true);
+        setAutomaticRefresh(false);
         startMetricsThread();
+    }
+
+    private void setRunning(boolean running) {
+        this.running = running;
+        Platform.runLater(() -> setStyle("tabred", !running));
     }
 
     void setAllExpanded(boolean value) {
@@ -84,7 +142,6 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
     void drawMetrics() {
         treeRoot.getChildren().clear();
         metrics.getMetrics().forEach((key, metric) -> {
-            //if (!metricsList.isMetricFiltered(metric.getName())) {
             TreeItem<TreeNode> metricItem = TreeNode.create(metric);
             metricItem.setExpanded(!hiddenMetrics.contains(metric.getName()));
             metricItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
@@ -101,7 +158,6 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
             });
 
             treeRoot.getChildren().add(metricItem);
-            //}
         });
     }
 
@@ -109,8 +165,10 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
         ThreadFactory.newThread(() -> {
             try {
                 for (; ; ) {
-                    refreshMetrics();
-                    TimeUnit.MILLISECONDS.sleep(refreshTime);
+                    if (running) {
+                        requestMetrics();
+                    }
+                    TimeUnit.MILLISECONDS.sleep(Configuration.METRICS_AUTOMATIC_REFRESH_DELAY_MS);
                     metricsRefreshLock.waitPermission();
                 }
             } catch (InterruptedException e) {
@@ -122,6 +180,12 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
     }
 
     void refreshMetrics() {
+        if (running) {
+            ThreadFactory.newThread(this::requestMetrics);
+        }
+    }
+
+    private void requestMetrics() {
         try (Response response = httpClient.newCall(metricApi).execute()) {
             if (response.body() != null) {
                 if (this.metrics == null) {
@@ -130,11 +194,9 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
                     PrometheusMetricsParser.parseAndUpdateValues(response.body().byteStream(), this.metrics);
                 }
                 Platform.runLater(this::drawMetrics);
-            } else {
-                LOGGER.warn("No metrics body");
             }
         } catch (Exception e) {
-            LOGGER.error("Error retrieving metrics", e);
+            LOGGER.error("Error retrieving metrics " + metricApi + ": " + e.getMessage());
         }
     }
 }

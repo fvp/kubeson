@@ -27,4 +27,14 @@ public abstract class MainTab<Toolbar extends IToolbar & GlobalKeyPressedEventLi
     public void onGlobalKeyPressedEvent(KeyEvent keyEvent) {
         toolbar.onGlobalKeyPressedEvent(keyEvent);
     }
+
+    public void setStyle(String style, boolean addOrRemove) {
+        if (addOrRemove) {
+            if (!getStyleClass().contains(style)) {
+                getStyleClass().add(style);
+            }
+        } else {
+            getStyleClass().remove(style);
+        }
+    }
 }

@@ -1,17 +1,10 @@
 package com.fvp.kubeson.common.gui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.fvp.kubeson.common.controller.K8SClient;
 import com.fvp.kubeson.common.controller.K8SClientListener;
-import com.fvp.kubeson.common.model.ItemType;
+import com.fvp.kubeson.common.controller.K8SResourceChange;
 import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.K8SPod;
-import com.fvp.kubeson.common.model.SelectedItem;
-import com.fvp.kubeson.common.model.SelectorItem;
-import com.fvp.kubeson.logs.gui.LogTabPane;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.control.ChoiceBox;
@@ -25,15 +18,12 @@ public final class PodSelector {
 
     private static ChoiceBox<String> namespaceBox;
 
-    private static CheckComboBox podNameBox;
+    private static ResourceComboBox resourceBox;
 
     private static String selectedNamespace;
 
-    private static int groupNumber;
-
     static {
         selectedNamespace = DEFAULT_NAMESPACE;
-        groupNumber = 1;
         init();
     }
 
@@ -52,56 +42,17 @@ public final class PodSelector {
             }
         });
 
-        podNameBox = new CheckComboBox();
-        podNameBox.showingProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                List<SelectedItem> selected = new ArrayList<>();
-                for (SelectorItem item : podNameBox.getItems()) {
-                    if (item.isChecked()) {
-                        selected.add(new SelectedItem(item));
-                        item.setChecked(false);
-                    }
-                }
-
-                if (selected.size() > 1) {
-                    LogTabPane.createLogTab(selected, "[Log] Group " + groupNumber);
-                    groupNumber++;
-                } else if (podNameBox.getSelectionModel().getSelectedItem() != null
-                        && podNameBox.getSelectionModel().getSelectedItem().getType() != ItemType.TEXT) {
-                    SelectedItem selectedItem = new SelectedItem(podNameBox.getSelectionModel().getSelectedItem());
-                    if (selectedItem.getType() == ItemType.METRICS) {
-                        LogTabPane.createMetricTab(selectedItem, "[Metrics] " + selectedItem.getText());
-                    } else if (selectedItem.getType() == ItemType.CONFIG_MAP) {
-                        LogTabPane.createConfigMapTab(selectedItem.getConfigMap(), "[ConfigMap] " + selectedItem.getText());
-                    } else {
-                        LogTabPane.createLogTab(Collections.singletonList(selectedItem), "[Log] " + selectedItem.getText());
-                    }
-                } else if (selected.size() == 1) {
-                    LogTabPane.createLogTab(selected, "[Log] " + selected.get(0).getText());
-                }
-                podNameBox.getSelectionModel().clearSelection();
-            }
-        });
+        resourceBox = new ResourceComboBox();
 
         K8SClient.addListener(new K8SClientListener() {
 
             @Override
-            public void onPodTerminated(K8SPod pod) {
+            public void onPodChange(K8SResourceChange<K8SPod> changes) {
                 Platform.runLater(PodSelector::update);
             }
 
             @Override
-            public void onNewPod(K8SPod newPod) {
-                Platform.runLater(PodSelector::update);
-            }
-
-            @Override
-            public void onNewConfigMap(K8SConfigMap configMap) {
-                Platform.runLater(PodSelector::update);
-            }
-
-            @Override
-            public void onConfigMapChange(K8SConfigMap configMap) {
+            public void onConfigMapChange(K8SResourceChange<K8SConfigMap> changes) {
                 Platform.runLater(PodSelector::update);
             }
         });
@@ -119,16 +70,16 @@ public final class PodSelector {
     }
 
     private static void updatePodNameBox(String nameSpace) {
-        podNameBox.getItems().clear();
+        resourceBox.getItems().clear();
         if (K8SClient.getNamespaces().contains(nameSpace)) {
-            podNameBox.getItems().addAll(K8SClient.getPodSelectorList(nameSpace));
+            resourceBox.getItems().addAll(K8SClient.getPodSelectorList(nameSpace));
         }
     }
 
     public static Parent draw() {
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);
-        gridPane.setVgap(3.5);
+        gridPane.setVgap(2.5);
         Text t1 = new Text("Namespace");
         t1.getStyleClass().add("selector-label");
         t1.setFill(Color.WHITE);
@@ -138,7 +89,7 @@ public final class PodSelector {
         t2.getStyleClass().add("selector-label");
         t2.setFill(Color.WHITE);
         gridPane.add(t2, 2, 1);
-        gridPane.add(podNameBox, 2, 2);
+        gridPane.add(resourceBox, 2, 2);
 
         return gridPane;
     }

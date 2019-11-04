@@ -7,24 +7,44 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.controller.K8SApiException;
 import com.fvp.kubeson.common.controller.K8SClient;
+import com.fvp.kubeson.common.controller.K8SRequestCallback;
+import com.fvp.kubeson.common.controller.K8SRequestResult;
+import com.fvp.kubeson.common.util.ThreadFactory;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import javafx.application.Platform;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class K8SConfigMap implements Comparable<K8SConfigMap> {
 
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private ConfigMap configMap;
+
+    private long flag;
 
     private List<ConfigMapChangeListener> listeners;
 
-    public K8SConfigMap(ConfigMap configMap) {
+    public K8SConfigMap(ConfigMap configMap, long flag) {
         this.configMap = configMap;
+        this.flag = flag;
         this.listeners = new ArrayList<>();
     }
 
     public void updateConfigMap(ConfigMap configMap) {
         this.configMap = configMap;
         this.listeners.forEach(listener -> listener.onConfigMapChange(this));
+    }
+
+    public long getFlag() {
+        return flag;
+    }
+
+    public void setFlag(long flag) {
+        this.flag = flag;
     }
 
     public String getUid() {
@@ -59,8 +79,19 @@ public class K8SConfigMap implements Comparable<K8SConfigMap> {
         configMap.getData().put(key, data);
     }
 
-    public void updateConfigMapData(String filename, String content) throws K8SApiException {
-        K8SClient.updateConfigMapData(getNamespace(), getName(), filename, content);
+    public void updateConfigMapData(String dataName, String content, K8SRequestCallback requestCallback) {
+        ThreadFactory.newThread(() -> {
+            try {
+                K8SClient.updateConfigMapData(getNamespace(), getName(), dataName, content);
+                K8SRequestResult.apply(requestCallback, true);
+            } catch (K8SApiException e) {
+                LOGGER.error("Failed to update config map " + getName(), e);
+                Platform.runLater(() -> {
+                    Main.showErrorMessage("Failed to update config map " + getName(), e);
+                    K8SRequestResult.apply(requestCallback, false, e);
+                });
+            }
+        });
     }
 
     public void addListener(ConfigMapChangeListener configMapChangeListener) {
@@ -95,6 +126,9 @@ public class K8SConfigMap implements Comparable<K8SConfigMap> {
 
     @Override
     public String toString() {
-        return getName();
+        final StringBuilder sb = new StringBuilder("K8SConfigMap{");
+        sb.append("configMap=").append(configMap);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -22,7 +22,7 @@ public abstract class IToolbar implements GlobalKeyPressedEventListener {
         toolbarItems.add(toolbarItem);
     }
 
-    protected void addListeners(GlobalKeyPressedEventListener... globalKeyPressedEventListeners) {
+    protected void registerListeners(GlobalKeyPressedEventListener... globalKeyPressedEventListeners) {
         this.globalKeyPressedListeners.addAll(Arrays.asList(globalKeyPressedEventListeners));
     }
 

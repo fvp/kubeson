@@ -114,6 +114,18 @@ public class LogLine {
         }
     }
 
+    private String prettyPrint(String text, boolean prettyPrint) {
+        if (prettyPrint && json) {
+            try {
+                return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapper.readTree(text));
+            } catch (Exception e) {
+                LOGGER.error("Failed to pretty print the json " + text, e);
+            }
+        }
+
+        return text;
+    }
+
     public String getText() {
         if (logText.length == 1) {
             return logText[0];
@@ -144,15 +156,19 @@ public class LogLine {
     }
 
     public String getRawText() {
+        return getRawText(false);
+    }
+
+    public String getRawText(boolean prettyPrint) {
         if (logText.length == 1) {
-            return logText[0];
+            return prettyPrint(logText[0], prettyPrint);
         }
         StringBuilder sb = new StringBuilder(logText[0].length());
         for (String txt : logText) {
             sb.append(txt);
         }
 
-        return sb.toString();
+        return prettyPrint(sb.toString(), prettyPrint);
     }
 
     public String[] getLogText() {
