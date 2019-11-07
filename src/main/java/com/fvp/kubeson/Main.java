@@ -43,6 +43,7 @@ public class Main extends Application {
     public static void main(String[] args) {
         LOGGER.info("Running app with Java Version " + System.getProperty("java.version") + " Arch " + System.getProperty("sun.arch.data.model"));
 
+        System.setProperty("java.util.logging.config.file", "");
         // System props
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
         System.setProperty("java.util.logging.config.file", "");
@@ -188,7 +189,7 @@ public class Main extends Application {
         primaryStage.getIcons().addAll(getAppIcons());
         primaryStage.show();
 
-        Upgrade.init();
+        Upgrade.start();
 
         //CSSFX.start();
         //ScenicView.show(scene);

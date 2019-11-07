@@ -23,6 +23,7 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -51,7 +52,6 @@ public final class K8SClient {
         pods = new ConcurrentHashMap<>();
         configMaps = new ConcurrentHashMap<>();
         k8sListeners = new ArrayList<>();
-        client = new DefaultKubernetesClient();
         k8sClientGetPodsAttempts = 0;
         k8sClientGetConfigMapsAttempts = 0;
         startK8SWorker();
@@ -63,6 +63,7 @@ public final class K8SClient {
     private static void startK8SWorker() {
         ThreadFactory.newThread(() -> {
             try {
+                startClient();
                 for (; ; ) {
                     TimeUnit.MILLISECONDS.sleep(Configuration.KUBERNETES_WORKER_WAIT_TIME_MS);
                     updatePods();
@@ -76,6 +77,20 @@ public final class K8SClient {
             client.close();
             LOGGER.info("Kubernetes Client Closed");
         });
+    }
+
+    private static void startClient() throws InterruptedException {
+        int sleepInterval = 8 * Configuration.KUBERNETES_WORKER_WAIT_TIME_MS;
+        for (; ; ) {
+            client = new DefaultKubernetesClient();
+            try {
+                client.getVersion();
+                return;
+            } catch (KubernetesClientException e) {
+                LOGGER.error("Kubeson was not able to connect to Kubernetes. Retrying in {} ms", sleepInterval);
+            }
+            TimeUnit.MILLISECONDS.sleep(sleepInterval);
+        }
     }
 
     private static void updatePods() {
@@ -159,6 +174,8 @@ public final class K8SClient {
                     configMaps.remove(uid);
                 }
             });
+        } catch (KubernetesClientException e) {
+            System.out.println(">>>>>>>>>>>>>>" + e.getMessage() + " | " + e.getCode() + " | " + e.getStatus());
         } catch (Exception e) {
             if (k8sClientGetConfigMapsAttempts > Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS) {
                 LOGGER.error("Failed to get kubernetes config map info after " + Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS + " attempts", e);

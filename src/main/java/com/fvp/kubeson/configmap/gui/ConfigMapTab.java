@@ -132,12 +132,15 @@ public class ConfigMapTab extends MainTab<ConfigMapToolbar> {
         String appLabel = configMap.getAppLabel();
         if (appLabel != null) {
             List<K8SPod> pods = K8SClient.getPodsByLabel(K8SPod.APP_LABEL, appLabel);
-            if (pods.isEmpty()) {
-                Main.showWarningMessage("No running pods found", "No running pods with app label \"" + appLabel + "\" were found");
-            } else {
-                for (K8SPod pod : pods) {
+            boolean deleted = false;
+            for (K8SPod pod : pods) {
+                if (K8SPod.STATUS_RUNNING.equals(pod.getState())) {
+                    deleted = true;
                     pod.delete();
                 }
+            }
+            if (!deleted) {
+                Main.showWarningMessage("No running pods found", "No running pods with app label \"" + appLabel + "\" were found");
             }
         }
     }

@@ -12,7 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-public final class PodSelector {
+public final class ResourceSelector {
 
     private static final String DEFAULT_NAMESPACE = "default";
 
@@ -27,7 +27,7 @@ public final class PodSelector {
         init();
     }
 
-    private PodSelector() {
+    private ResourceSelector() {
     }
 
     private static void init() {
@@ -38,7 +38,7 @@ public final class PodSelector {
         namespaceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 selectedNamespace = newValue;
-                updatePodNameBox(selectedNamespace);
+                updatePodNameBox();
             }
         });
 
@@ -48,19 +48,19 @@ public final class PodSelector {
 
             @Override
             public void onPodChange(K8SResourceChange<K8SPod> changes) {
-                Platform.runLater(PodSelector::update);
+                Platform.runLater(ResourceSelector::update);
             }
 
             @Override
             public void onConfigMapChange(K8SResourceChange<K8SConfigMap> changes) {
-                Platform.runLater(PodSelector::update);
+                Platform.runLater(ResourceSelector::update);
             }
         });
     }
 
     private static void update() {
         updateNamespaceBox();
-        updatePodNameBox(selectedNamespace);
+        updatePodNameBox();
     }
 
     private static void updateNamespaceBox() {
@@ -69,10 +69,10 @@ public final class PodSelector {
         namespaceBox.getSelectionModel().select(selectedNamespace);
     }
 
-    private static void updatePodNameBox(String nameSpace) {
+    private static void updatePodNameBox() {
         resourceBox.getItems().clear();
-        if (K8SClient.getNamespaces().contains(nameSpace)) {
-            resourceBox.getItems().addAll(K8SClient.getPodSelectorList(nameSpace));
+        if (K8SClient.getNamespaces().contains(selectedNamespace)) {
+            resourceBox.getItems().addAll(K8SClient.getPodSelectorList(selectedNamespace));
         }
     }
 

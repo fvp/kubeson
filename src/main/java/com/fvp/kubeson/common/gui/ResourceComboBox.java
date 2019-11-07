@@ -45,6 +45,8 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
         super.setVisibleRowCount(30);
 
         super.setCellFactory(listView -> {
+            listView.setMinWidth(500);
+            listView.setPrefWidth(500);
             CheckBoxListCell result = new CheckBoxListCell();
             result.setOnMouseClicked(e -> super.hide());
 
@@ -145,7 +147,7 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
                         metricsButton.setOnAction((event -> {
                             SelectedItem selectedItem = new SelectedItem(selectorItem);
                             MainTabPane.createMetricTab(selectedItem, "[Metrics] " + selectedItem.getPod().getPodName());
-                            ResourceComboBox.this.setFocused(false);
+                            ResourceComboBox.this.hide();
                         }));
                         buttons.getChildren().add(metricsButton);
                     }

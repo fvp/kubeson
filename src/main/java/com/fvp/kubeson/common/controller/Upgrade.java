@@ -81,7 +81,23 @@ public final class Upgrade {
 
     }
 
-    public static void init() {
+    public static void start() {
+        ThreadFactory.newThread(() -> {
+            try {
+                init();
+                for (; ; ) {
+                    checkForUpgrade();
+                    TimeUnit.MILLISECONDS.sleep(Configuration.CHECK_FOR_UPGRADE_WORKER_WAIT_TIME_MS);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.info("Check For Upgrade Thread Interrupted");
+            }
+            LOGGER.info("Check For Upgrade Thread Completed");
+        });
+    }
+
+    private static void init() {
         setTrustAllCertificates();
         try {
             GITHUB_RELEASES_URL = new URL(Configuration.GITHUB_RELEASES + "?access_token=" + Configuration.GITHUB_TOKEN);
@@ -89,8 +105,8 @@ public final class Upgrade {
             // Find http proxy (if any) to be able to upgrade
             ProxySearch proxySearch = new ProxySearch();
             proxySearch.addStrategy(Strategy.OS_DEFAULT);
-            proxySearch.addStrategy(Strategy.ENV_VAR);
             proxySearch.addStrategy(Strategy.BROWSER);
+            proxySearch.addStrategy(Strategy.ENV_VAR);
             proxySearch.addStrategy(Strategy.JAVA);
 
             List<Proxy> proxies = proxySearch.getProxySelector().select(GITHUB_RELEASES_URL.toURI());
@@ -105,7 +121,6 @@ public final class Upgrade {
         upgradeState = UpgradeState.NO_UPGRADE_AVAILABLE;
         message = "";
         downloadWorker = downloadRelease();
-        startCheckForUpgradeWorker();
     }
 
     /**
@@ -281,21 +296,6 @@ public final class Upgrade {
         }
 
         return false;
-    }
-
-    private static void startCheckForUpgradeWorker() {
-        ThreadFactory.newThread(() -> {
-            try {
-                for (; ; ) {
-                    checkForUpgrade();
-                    TimeUnit.MILLISECONDS.sleep(Configuration.CHECK_FOR_UPGRADE_WORKER_WAIT_TIME_MS);
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.info("Check For Upgrade Thread Interrupted");
-            }
-            LOGGER.info("Check For Upgrade Thread Completed");
-        });
     }
 
     private static void validate(String zipFilePath) throws ValidateUpgradeException {

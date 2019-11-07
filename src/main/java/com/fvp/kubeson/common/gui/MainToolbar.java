@@ -23,7 +23,7 @@ public final class MainToolbar {
         //Tool Bar
         toolbar = new ToolBar();
         // Set Pod Selector
-        toolbar.getItems().add(PodSelector.draw());
+        toolbar.getItems().add(ResourceSelector.draw());
 
         // Central Pane
         toolbar.getItems().add(emptyToolbox);
