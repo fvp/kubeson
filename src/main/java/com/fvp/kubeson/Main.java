@@ -124,17 +124,13 @@ public class Main extends Application {
     }
 
     public static void showUpgradeMessage(String version) {
-        Action action = new Action("Click here to upgrade", event -> InfoButton.fire());
-        action.setSelected(false);
-        //action.getGraphic().foc
-
         Notifications.create()
                 .owner(primaryStage)
                 .darkStyle()
                 .position(Pos.BOTTOM_RIGHT)
                 .hideAfter(Duration.seconds(12))
                 .title("Kubeson " + version + " is now available!")
-                .action(action)
+                .action(new Action("Click here to upgrade", event -> InfoButton.fire()))
                 .showInformation();
     }
 

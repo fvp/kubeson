@@ -147,7 +147,13 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
                         Button metricsButton = createButton(iconMetrics, "METRICS");
                         metricsButton.setOnAction((event -> {
                             SelectedItem selectedItem = new SelectedItem(selectorItem);
-                            MainTabPane.createMetricTab(selectedItem, new TabLabel(TabType.METRICS, selectedItem.getPod().getPodName()));
+                            String tabText;
+                            if (selectedItem.getPod().getAppLabel() != null) {
+                                tabText = selectedItem.getPod().getAppLabel();
+                            } else {
+                                tabText = selectedItem.getPod().getPodName();
+                            }
+                            MainTabPane.createMetricTab(selectedItem, new TabLabel(TabType.METRICS, tabText));
                             ResourceComboBox.this.hide();
                         }));
                         buttons.getChildren().add(metricsButton);
