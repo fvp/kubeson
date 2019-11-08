@@ -28,6 +28,8 @@ public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
 
     private String selectedConfigDataName;
 
+    private String selectedConfigDataContent;
+
     private K8SClientListener k8sListener;
 
     private boolean textEdited;
@@ -47,7 +49,7 @@ public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
         mainTextField.setPrefHeight(Region.USE_COMPUTED_SIZE);
         mainTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!StringUtils.isEmpty(oldValue)) {
-                setTextEdited(!getSelectedData().equals(newValue));
+                setTextEdited(!StringUtils.equals(selectedConfigDataContent, newValue));
             }
         });
 
@@ -105,17 +107,19 @@ public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
         getTabLabel().setErrorColor(removed);
     }
 
-    private String getSelectedData() {
-        return configMap.getData().get(selectedConfigDataName);
-    }
-
     Set<String> getConfigMapFiles() {
         return configMap.getData().keySet();
     }
 
     void selectConfigMapDataName(String configFileName) {
         selectedConfigDataName = configFileName;
-        mainTextField.setText(configMap.getData().get(configFileName));
+        selectedConfigDataContent = configMap.getData().get(configFileName);
+        if (selectedConfigDataContent != null) {
+            selectedConfigDataContent = selectedConfigDataContent.replaceAll("\r\n", "\n");
+            mainTextField.setText(selectedConfigDataContent);
+        } else {
+            mainTextField.setText("");
+        }
         setTextEdited(false);
     }
 
