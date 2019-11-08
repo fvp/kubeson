@@ -89,9 +89,6 @@ public class TableComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
 
     private final InvalidationListener itemsObserver;
 
-    private final WeakListChangeListener<T> weakListViewItemsListener =
-            new WeakListChangeListener<T>(listViewItemsListener);
-
     private ObservableList<T> comboBoxItems;
 
     private ListCell<T> buttonCell;
@@ -125,6 +122,8 @@ public class TableComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
             getSkinnable().requestLayout();
         }
     };
+
+    private final WeakListChangeListener<T> weakListViewItemsListener = new WeakListChangeListener<T>(listViewItemsListener);
 
     /***************************************************************************
      *                                                                         *

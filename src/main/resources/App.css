@@ -217,14 +217,6 @@
     -fx-background-color: red;
 }
 
-.tabred > * > .tab-label {
-    -fx-text-fill: #e60000;
-}
-
-.tabblue > * > .tab-label {
-    -fx-text-fill: #3FA9CF;
-}
-
 .radio-menu-item:checked > .left-container > .radio {
     -fx-background-color: white;
 }

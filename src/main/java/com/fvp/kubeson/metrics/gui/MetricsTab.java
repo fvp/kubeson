@@ -8,7 +8,8 @@ import com.fvp.kubeson.Configuration;
 import com.fvp.kubeson.common.controller.K8SClient;
 import com.fvp.kubeson.common.controller.K8SClientListener;
 import com.fvp.kubeson.common.controller.K8SResourceChange;
-import com.fvp.kubeson.common.gui.MainTab;
+import com.fvp.kubeson.common.gui.TabBase;
+import com.fvp.kubeson.common.gui.TabLabel;
 import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.K8SPod;
 import com.fvp.kubeson.common.model.SelectedItem;
@@ -31,7 +32,7 @@ import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MetricsTab extends MainTab<MetricsToolbar> {
+public class MetricsTab extends TabBase<MetricsToolbar> {
 
     private static Logger LOGGER = LogManager.getLogger();
 
@@ -51,8 +52,8 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
 
     private volatile boolean running;
 
-    public MetricsTab(SelectedItem selectedItem, String name) {
-        super(name);
+    public MetricsTab(SelectedItem selectedItem, TabLabel tabLabel) {
+        super(tabLabel);
         super.setToolbar(new MetricsToolbar(this));
 
         metricsRefreshLock = new ThreadLock();
@@ -122,7 +123,7 @@ public class MetricsTab extends MainTab<MetricsToolbar> {
 
     private void setRunning(boolean running) {
         this.running = running;
-        Platform.runLater(() -> setStyle("tabred", !running));
+        Platform.runLater(() -> getTabLabel().setErrorColor(!running));
     }
 
     void setAllExpanded(boolean value) {

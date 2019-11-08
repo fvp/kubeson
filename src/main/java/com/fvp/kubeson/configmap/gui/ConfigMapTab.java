@@ -7,7 +7,8 @@ import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.controller.K8SClient;
 import com.fvp.kubeson.common.controller.K8SClientListener;
 import com.fvp.kubeson.common.controller.K8SResourceChange;
-import com.fvp.kubeson.common.gui.MainTab;
+import com.fvp.kubeson.common.gui.TabBase;
+import com.fvp.kubeson.common.gui.TabLabel;
 import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.K8SPod;
 import javafx.application.Platform;
@@ -17,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConfigMapTab extends MainTab<ConfigMapToolbar> {
+public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
 
     private static Logger LOGGER = LogManager.getLogger();
 
@@ -33,8 +34,8 @@ public class ConfigMapTab extends MainTab<ConfigMapToolbar> {
 
     private volatile boolean removed;
 
-    public ConfigMapTab(K8SConfigMap k8sConfigMap, String name) {
-        super(name);
+    public ConfigMapTab(K8SConfigMap k8sConfigMap, TabLabel tabLabel) {
+        super(tabLabel);
 
         this.configMap = k8sConfigMap;
 
@@ -94,14 +95,14 @@ public class ConfigMapTab extends MainTab<ConfigMapToolbar> {
 
     private void setTextEdited(boolean textEdited) {
         if (this.textEdited != textEdited) {
-            setStyle("tabblue", textEdited);
+            getTabLabel().setChangeColor(textEdited);
             this.textEdited = textEdited;
         }
     }
 
     private void setRemoved(boolean removed) {
         this.removed = removed;
-        setStyle("tabred", removed);
+        getTabLabel().setErrorColor(removed);
     }
 
     private String getSelectedData() {

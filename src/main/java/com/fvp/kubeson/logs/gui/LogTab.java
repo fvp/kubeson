@@ -12,7 +12,8 @@ import com.fvp.kubeson.Configuration;
 import com.fvp.kubeson.common.controller.K8SClient;
 import com.fvp.kubeson.common.controller.K8SClientListener;
 import com.fvp.kubeson.common.controller.K8SResourceChange;
-import com.fvp.kubeson.common.gui.MainTab;
+import com.fvp.kubeson.common.gui.TabBase;
+import com.fvp.kubeson.common.gui.TabLabel;
 import com.fvp.kubeson.common.model.ItemType;
 import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.K8SPod;
@@ -35,7 +36,7 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class LogTab extends MainTab<LogToolbar> {
+public class LogTab extends TabBase<LogToolbar> {
 
     private static Logger LOGGER = LogManager.getLogger();
 
@@ -71,8 +72,8 @@ public class LogTab extends MainTab<LogToolbar> {
 
     private int logSourceColorIdx;
 
-    public LogTab(File logFile) {
-        super(logFile.getName());
+    public LogTab(File logFile, TabLabel tabLabel) {
+        super(tabLabel);
         LOGGER.debug("Creating tab for file [" + logFile + "]");
 
         super.setTooltip(new Tooltip(logFile.toString()));
@@ -97,8 +98,8 @@ public class LogTab extends MainTab<LogToolbar> {
         }
     }
 
-    public LogTab(List<SelectedItem> selectedItems, String name, boolean showLogsFromStart) {
-        super(name);
+    public LogTab(List<SelectedItem> selectedItems, TabLabel tabLabel, boolean showLogsFromStart) {
+        super(tabLabel);
         this.selectedItems = selectedItems;
         setRunning(true);
 
@@ -327,7 +328,7 @@ public class LogTab extends MainTab<LogToolbar> {
         TabPane tabPane = super.getTabPane();
         int pos = tabPane.getTabs().indexOf(this) + 1;
 
-        LogTab logTab = new LogTab(selectedItems, getText(), false);
+        LogTab logTab = new LogTab(selectedItems, getTabLabel(), false);
         tabPane.getTabs().add(pos, logTab);
         tabPane.getSelectionModel().select(pos);
     }
@@ -363,7 +364,7 @@ public class LogTab extends MainTab<LogToolbar> {
         } else {
             this.running = 0;
         }
-        setStyle("tabred", !running);
+        getTabLabel().setErrorColor(!running);
     }
 
     @Override

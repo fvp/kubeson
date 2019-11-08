@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fvp.kubeson.common.model.K8SConfigMap;
 import com.fvp.kubeson.common.model.SelectedItem;
+import com.fvp.kubeson.common.model.TabType;
 import com.fvp.kubeson.configmap.gui.ConfigMapTab;
 import com.fvp.kubeson.logs.gui.LogTab;
 import com.fvp.kubeson.metrics.gui.MetricsTab;
@@ -37,7 +38,7 @@ public final class MainTabPane {
         mainTabPane.setStyle("-fx-background-color: black;");
         mainTabPane.setFocusTraversable(false);
         mainTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            MainTab tab = (MainTab) newValue;
+            TabBase tab = (TabBase) newValue;
             if (tab != null) {
                 tab.onSelected();
             } else {
@@ -73,43 +74,43 @@ public final class MainTabPane {
         return mainTabPane;
     }
 
-    public static boolean createMetricTab(SelectedItem selectedItem, String name) {
+    public static boolean createMetricTab(SelectedItem selectedItem, TabLabel tabLabel) {
         // Return false if Tab with same name already exists
         for (Tab tab : mainTabPane.getTabs()) {
-            if (tab.getText().equals(name)) {
+            if (tab.getGraphic().equals(tabLabel)) {
                 return false;
             }
         }
 
-        mainTabPane.getTabs().add(new MetricsTab(selectedItem, name));
+        mainTabPane.getTabs().add(new MetricsTab(selectedItem, tabLabel));
         mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
-    public static boolean createConfigMapTab(K8SConfigMap configMap, String name) {
+    public static boolean createConfigMapTab(K8SConfigMap configMap, TabLabel tabLabel) {
         // Return false if Tab with same name already exists
         for (Tab tab : mainTabPane.getTabs()) {
-            if (tab.getText().equals(name)) {
+            if (tab.getGraphic().equals(tabLabel)) {
                 return false;
             }
         }
 
-        mainTabPane.getTabs().add(new ConfigMapTab(configMap, name));
+        mainTabPane.getTabs().add(new ConfigMapTab(configMap, tabLabel));
         mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
-    public static boolean createLogTab(List<SelectedItem> selectedItems, String name) {
+    public static boolean createLogTab(List<SelectedItem> selectedItems, TabLabel tabLabel) {
         // Return false if Tab with same name already exists
         for (Tab tab : mainTabPane.getTabs()) {
-            if (tab.getText().equals(name)) {
+            if (tab.getGraphic().equals(tabLabel)) {
                 return false;
             }
         }
 
-        mainTabPane.getTabs().add(new LogTab(selectedItems, name, true));
+        mainTabPane.getTabs().add(new LogTab(selectedItems, tabLabel, true));
         mainTabPane.getSelectionModel().selectLast();
 
         return true;
@@ -122,14 +123,14 @@ public final class MainTabPane {
                 return false;
             }
         }
-        LogTab logTab = new LogTab(logFile);
+        LogTab logTab = new LogTab(logFile, new TabLabel(TabType.LOG, logFile.getName()));
         mainTabPane.getTabs().add(logTab);
         mainTabPane.getSelectionModel().selectLast();
 
         return true;
     }
 
-    public static MainTab getSelectedTab() {
-        return (MainTab) mainTabPane.getSelectionModel().getSelectedItem();
+    public static TabBase getSelectedTab() {
+        return (TabBase) mainTabPane.getSelectionModel().getSelectedItem();
     }
 }

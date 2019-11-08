@@ -174,8 +174,6 @@ public final class K8SClient {
                     configMaps.remove(uid);
                 }
             });
-        } catch (KubernetesClientException e) {
-            System.out.println(">>>>>>>>>>>>>>" + e.getMessage() + " | " + e.getCode() + " | " + e.getStatus());
         } catch (Exception e) {
             if (k8sClientGetConfigMapsAttempts > Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS) {
                 LOGGER.error("Failed to get kubernetes config map info after " + Configuration.MAX_KUBERNETES_CLIENT_ATTEMPTS + " attempts", e);

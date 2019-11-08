@@ -7,10 +7,10 @@ import java.util.List;
 
 import com.fvp.kubeson.common.controller.Upgrade;
 import com.fvp.kubeson.common.gui.InfoButton;
-import com.fvp.kubeson.common.gui.MainTab;
 import com.fvp.kubeson.common.gui.MainTabPane;
 import com.fvp.kubeson.common.gui.MainToolbar;
 import com.fvp.kubeson.common.gui.Notifications;
+import com.fvp.kubeson.common.gui.TabBase;
 import com.fvp.kubeson.common.util.ThreadFactory;
 import com.sun.javafx.text.GlyphLayout;
 import javafx.application.Application;
@@ -124,13 +124,17 @@ public class Main extends Application {
     }
 
     public static void showUpgradeMessage(String version) {
+        Action action = new Action("Click here to upgrade", event -> InfoButton.fire());
+        action.setSelected(false);
+        //action.getGraphic().foc
+
         Notifications.create()
                 .owner(primaryStage)
                 .darkStyle()
                 .position(Pos.BOTTOM_RIGHT)
                 .hideAfter(Duration.seconds(12))
                 .title("Kubeson " + version + " is now available!")
-                .action(new Action("Click here to upgrade", event -> InfoButton.fire()))
+                .action(action)
                 .showInformation();
     }
 
@@ -164,7 +168,7 @@ public class Main extends Application {
         VBox root = new VBox();
         Scene scene = new Scene(root, 1600, 800, Color.BLACK);
         scene.setOnKeyPressed(keyEvent -> {
-            MainTab SelectedTab = MainTabPane.getSelectedTab();
+            TabBase SelectedTab = MainTabPane.getSelectedTab();
             if (SelectedTab != null) {
                 SelectedTab.onGlobalKeyPressedEvent(keyEvent);
             }

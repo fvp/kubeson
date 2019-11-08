@@ -8,6 +8,7 @@ import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.model.ItemType;
 import com.fvp.kubeson.common.model.SelectedItem;
 import com.fvp.kubeson.common.model.SelectorItem;
+import com.fvp.kubeson.common.model.TabType;
 import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -71,18 +72,18 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
                 }
 
                 if (selected.size() > 1) {
-                    MainTabPane.createLogTab(selected, "[Log] Group " + groupNumber);
+                    MainTabPane.createLogTab(selected, new TabLabel(TabType.LOG, "Group " + groupNumber));
                     groupNumber++;
                 } else if (getSelectionModel().getSelectedItem() != null
                         && getSelectionModel().getSelectedItem().getType() != ItemType.TEXT) {
                     SelectedItem selectedItem = new SelectedItem(getSelectionModel().getSelectedItem());
                     if (selectedItem.getType() == ItemType.CONFIG_MAP) {
-                        MainTabPane.createConfigMapTab(selectedItem.getConfigMap(), "[ConfigMap] " + selectedItem.getText());
+                        MainTabPane.createConfigMapTab(selectedItem.getConfigMap(), new TabLabel(TabType.CONFIG_MAP, selectedItem.getText()));
                     } else {
-                        MainTabPane.createLogTab(Collections.singletonList(selectedItem), "[Log] " + selectedItem.getText());
+                        MainTabPane.createLogTab(Collections.singletonList(selectedItem), new TabLabel(TabType.LOG, selectedItem.getText()));
                     }
                 } else if (selected.size() == 1) {
-                    MainTabPane.createLogTab(selected, "[Log] " + selected.get(0).getText());
+                    MainTabPane.createLogTab(selected, new TabLabel(TabType.LOG, selected.get(0).getText()));
                 }
                 getSelectionModel().clearSelection();
             }
@@ -146,7 +147,7 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
                         Button metricsButton = createButton(iconMetrics, "METRICS");
                         metricsButton.setOnAction((event -> {
                             SelectedItem selectedItem = new SelectedItem(selectorItem);
-                            MainTabPane.createMetricTab(selectedItem, "[Metrics] " + selectedItem.getPod().getPodName());
+                            MainTabPane.createMetricTab(selectedItem, new TabLabel(TabType.METRICS, selectedItem.getPod().getPodName()));
                             ResourceComboBox.this.hide();
                         }));
                         buttons.getChildren().add(metricsButton);
