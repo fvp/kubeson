@@ -3,17 +3,17 @@
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout
-                pattern="%green{%d{ISO8601}} %highlight{%-5level [%t] %c{1.} %msg%n%throwable}{FATAL=red, ERROR=bright red, WARN=bright yellow, INFO=bright white, DEBUG=bright cyan, TRACE=bright magenta}"/>
+                pattern="%green{%d{ISO8601}} %highlight{%-5level [%t] %c{1.} - %msg%n%throwable}{FATAL=red, ERROR=bright red, WARN=bright yellow, INFO=bright white, DEBUG=bright cyan, TRACE=bright magenta}"/>
         </Console>
 
         <File fileName="logs/app.log" name="file">
             <PatternLayout>
-                <Pattern>%d{ISO8601} %-5level [%t] %c{1.} %msg%n%throwable</Pattern>
+                <Pattern>%d{ISO8601} %-5level [%t] %c{1.} - %msg%n%throwable</Pattern>
             </PatternLayout>
         </File>
     </Appenders>
     <Loggers>
-        <Logger level="trace" name="com.gemalto"/>
+        <Logger level="trace" name="com.fvp.kubeson"/>
         <Logger level="debug" name="io.fabric8.kubernetes"/>
         <root level="info">
             <AppenderRef ref="console"/>
