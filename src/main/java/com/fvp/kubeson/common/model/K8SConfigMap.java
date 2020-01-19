@@ -1,7 +1,5 @@
 package com.fvp.kubeson.common.model;
 
-import static com.fvp.kubeson.common.model.K8SPod.APP_LABEL;
-
 import java.util.Map;
 import java.util.Objects;
 
@@ -55,10 +53,6 @@ public class K8SConfigMap implements Comparable<K8SConfigMap> {
 
     public Map<String, String> getLabels() {
         return configMap.getMetadata().getLabels();
-    }
-
-    public String getAppLabel() {
-        return getLabels().get(APP_LABEL);
     }
 
     public String getResourceVersion() {

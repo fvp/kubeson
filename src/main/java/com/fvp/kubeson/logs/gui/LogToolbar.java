@@ -2,6 +2,8 @@ package com.fvp.kubeson.logs.gui;
 
 import com.fvp.kubeson.common.gui.IToolbar;
 import com.fvp.kubeson.common.gui.TabPill;
+import com.fvp.kubeson.common.gui.TabPill.Orientation;
+import com.fvp.kubeson.logs.model.HttpMethod;
 import com.fvp.kubeson.logs.model.LogCategory;
 import com.fvp.kubeson.logs.model.LogLevel;
 import javafx.geometry.Pos;
@@ -23,8 +25,7 @@ public class LogToolbar extends IToolbar {
 
     public LogToolbar(LogTab logTab) {
         // Set Log Level Pill
-        TabPill<LogLevel> logLevelPill = new TabPill<>(logTab, LogLevel.class);
-        HBox.setHgrow(logLevelPill, Priority.ALWAYS);
+        TabPill<LogLevel> logLevelPill = new TabPill<>(54, Orientation.HORIZONTAL, logTab, LogLevel.class);
 
         // Buttons
         clearButton = new ClearButton(logTab);
@@ -37,10 +38,15 @@ public class LogToolbar extends IToolbar {
         //HBox.setHgrow(buttons, Priority.ALWAYS);
 
         // Set Log Category Pill
-        TabPill<LogCategory> ulfCategoryPill = new TabPill<>(logTab, LogCategory.class);
-        HBox.setHgrow(ulfCategoryPill, Priority.ALWAYS);
+        TabPill<LogCategory> ulfCategoryPill = new TabPill<>(54, Orientation.HORIZONTAL, logTab, LogCategory.class);
 
-        HBox centralArea = new HBox(logLevelPill, buttons, ulfCategoryPill);
+        TabPill<HttpMethod> httpMethodsUp = new TabPill<>(69, Orientation.VERTICAL, logTab, HttpMethod.class);
+        ulfCategoryPill.setPopup(1, httpMethodsUp);
+
+        TabPill<HttpMethod> httpMethodsDown = new TabPill<>(69, Orientation.VERTICAL, logTab, HttpMethod.class);
+        ulfCategoryPill.setPopup(2, httpMethodsDown);
+
+        HBox centralArea = new HBox(logLevelPill.draw(), buttons, ulfCategoryPill.draw());
         centralArea.setAlignment(Pos.CENTER);
         centralArea.setStyle("-fx-padding: 0 20 0 20");
         //centralArea.setSpacing(23);

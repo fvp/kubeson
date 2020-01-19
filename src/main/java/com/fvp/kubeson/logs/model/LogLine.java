@@ -26,6 +26,8 @@ public class LogLine {
 
     private LogCategory logCategory;
 
+    private HttpMethod httpMethod;
+
     private String[] logText;
 
     public LogLine(String text) {
@@ -103,12 +105,19 @@ public class LogLine {
         return logCategory;
     }
 
+    public HttpMethod getHttpMethod() {
+        return httpMethod;
+    }
+
     private void setLogCategory(String subText, String text) {
         for (LogCategory category : LogCategory.values()) {
-            if (subText.contains(category.getName())
+            if (subText.contains(category.getCategorySearch())
                     && (category.getSubCategorySearch() == null || text.contains(category.getSubCategorySearch()))
             ) {
                 logCategory = category;
+                if (category.searchHttpMethod()) {
+                    httpMethod = HttpMethod.locate(text);
+                }
                 return;
             }
         }

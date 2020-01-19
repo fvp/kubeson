@@ -36,42 +36,81 @@
 }
 
 /* Tab Pill */
-.toggle-button.left-pill {
+.toggle-button.left-pill-horizontal {
     -fx-background-radius: 3 0 0 3, 3 0 0 3, 2 0 0 2, 1 0 0 1;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
     -fx-padding: 0.333333em 0.666667em 0.333333em 0.75em; /* 4 8 4 9 */
 }
-.toggle-button.center-pill {
+.toggle-button.center-pill-horizontal {
     -fx-background-radius: 0;
     -fx-background-insets: 0 0 -1 0, 0 0 0 0, 1 1 1 0, 2 2 2 1 ;
 }
-.toggle-button.right-pill {
+.toggle-button.right-pill-horizontal {
     -fx-background-radius: 0 3 3 0, 0 3 3 0, 0 2 2 0, 0 1 1 0;
     -fx-background-insets: 0 0 -1 0, 0, 1 1 1 0, 2 2 2 1 ;
 }
-.toggle-button.left-pill:focused {
+.toggle-button.left-pill-horizontal:focused {
     -fx-background-insets: -0.2 0 -0.2 -0.2, 1, 2, -1.4 0 -1.4 -1.4, 2.6;
     -fx-background-radius: 3 0 0 3, 2 0 0 2, 1 0 0 1, 4 0 0 4, 1 0 0 1;
 }
-.toggle-button.center-pill:focused {
+.toggle-button.center-pill-horizontal:focused {
     -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
     -fx-background-radius: 0, 0, 0, 0, 0;
 }
-.toggle-button.right-pill:focused {
+.toggle-button.right-pill-horizontal:focused {
     -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
     -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 1 1 0, 0 4 4 0, 0 1 1 0;
 }
-.toggle-button:selected.left-pill:focused {
+.toggle-button:selected.left-pill-horizontal:focused {
     -fx-background-insets: -0.2 0 -0.2 -0.2, 1, -1.4 0 -1.4 -1.4, 2.6;
     -fx-background-radius: 3 0 0 3, 2 0 0 2, 4 0 0 4, 0;
 }
-.toggle-button:selected.center-pill:focused {
+.toggle-button:selected.center-pill-horizontal:focused {
     -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
     -fx-background-radius: 0, 0, 0, 0;
 }
-.toggle-button:selected.right-pill:focused {
+.toggle-button:selected.right-pill-horizontal:focused {
     -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
     -fx-background-radius: 0 3 3 0, 0 2 2 0, 0 4 4 0, 0;
+}
+
+
+.toggle-button.left-pill-vertical {
+    -fx-background-radius: 3 3 0 0, 3 3 0 0, 2 2 0 0, 1 1 0 0;
+    -fx-background-insets: 0 -1 0 0, 1, 0, 1;
+    -fx-padding: 0.333333em 0.666667em 0.333333em 0.75em; /* 4 8 4 9 */
+}
+.toggle-button.center-pill-vertical {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0 0 -1 0, 1 1 1 0, 0 0 0 0, 1 1 1 0 ;
+}
+.toggle-button.right-pill-vertical {
+    -fx-background-radius: 0 0 3 3, 0 0 3 3, 0 0 2 2, 0 0 1 1;
+    -fx-background-insets: 2 2 2 1, 0 0 -1 0, 0, 1 1 1 0;
+}
+.toggle-button.left-pill-vertical:focused {
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1, 2, -1.4 0 -1.4 -1.4, 2.6;
+    -fx-background-radius: 3 3 0 0, 2 2 0 0, 1 1 0 0, 4 4 0 0, 1 1 0 0;
+}
+.toggle-button.center-pill-vertical:focused {
+    -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0, 0, 0, 0, 0;
+}
+.toggle-button.right-pill-vertical:focused {
+    -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, 2 2 2 1, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0 0 3 3, 0 0 2 2, 0 0 1 1, 0 0 4 4, 0 0 1 1;
+}
+.toggle-button:selected.left-pill-vertical:focused {
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1, -1.4 0 -1.4 -1.4, 2.6;
+    -fx-background-radius: 3 3 0 0, 2 2 0 0, 4 4 0 0, 0;
+}
+.toggle-button:selected.center-pill-vertical:focused {
+    -fx-background-insets: -0.2 0 -0.2 -1, 1 1 1 0, -1.4 0 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0, 0, 0, 0;
+}
+.toggle-button:selected.right-pill-vertical:focused {
+    -fx-background-insets: -0.2 -0.2 -0.2 -1, 1 1 1 0, -1.4 -1.4 -1.4 -1, 2.6 2.6 2.6 1.6;
+    -fx-background-radius: 0 0 3 3, 0 0 2 2, 0 0 4 4, 0;
 }
 
 /* Search Box */
@@ -177,13 +216,59 @@
 
 .log-category:selected {
     -fx-base: #8c8c8c;
+    -fx-background-color:
+        transparent,
+        linear-gradient(to bottom, derive(-fx-outer-border, -20%), -fx-outer-border),
+        linear-gradient(to bottom, derive(-fx-color, -22%) 0%, derive(-fx-color, -13%) 20%, derive(-fx-color, -11%) 50%);
 }
 
-.toggle-button:selected {
-        -fx-background-color:
-            transparent,
-            linear-gradient(to bottom, derive(-fx-outer-border, -20%), -fx-outer-border),
-            linear-gradient(to bottom, derive(-fx-color, -22%) 0%, derive(-fx-color, -13%) 20%, derive(-fx-color, -11%) 50%);
+.http-method-head:selected, .http-method-patch:selected, .http-method-patch:selected, .http-method-get:selected, .http-method-post:selected, .http-method-put:selected, .http-method-delete:selected {
+     -fx-background-color:
+         transparent,
+         linear-gradient(to bottom, derive(-fx-outer-border, -20%), -fx-outer-border),
+         linear-gradient(to bottom, derive(-fx-base, -22%) 0%, derive(-fx-base, -13%) 20%, derive(-fx-base, -11%) 50%);
+}
+
+.http-method-head, .http-method-patch, .http-method-patch, .http-method-get, .http-method-post, .http-method-put, .http-method-delete  {
+    -fx-base: rgba(60, 63, 65, 255); // dark
+}
+
+.http-method-head:selected {
+    -fx-base: #00bfff;
+    -fx-font-weight: bolder;
+}
+
+.http-method-patch:selected {
+    -fx-base: #bf00ff;
+    -fx-font-weight: bolder;
+}
+
+.http-method-get:selected {
+    -fx-base: #ff794d;
+    -fx-font-weight: bolder;
+}
+
+.http-method-post:selected {
+    -fx-base: #ff00ff;
+    -fx-font-weight: bolder;
+}
+
+.http-method-put:selected {
+    -fx-base: #db70b8;
+    -fx-font-weight: bolder;
+}
+
+.http-method-delete:selected {
+    -fx-base: #ff3333;
+    -fx-font-weight: bolder;
+}
+
+.popover .content {
+    -fx-background-color: rgba(60, 63, 65, 255); // dark
+}
+
+.sub-tabpill-selected {
+    -fx-border-color: #ffff66;
 }
 
 /* TABs */
@@ -242,3 +327,4 @@
     -fx-font-family: Verdana;
     -fx-padding: 8;
 }
+

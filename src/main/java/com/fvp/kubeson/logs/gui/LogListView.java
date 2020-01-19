@@ -365,6 +365,12 @@ public class LogListView {
                     iv.setTranslateY(3);
                     nodes.add(iv);
                     nodes.add(new Text(" "));
+
+                    if (logLineContainer.getLogLine().getHttpMethod() != null) {
+                        Text httpMethod = new Text(logLineContainer.getLogLine().getHttpMethod() + " ");
+                        httpMethod.setFill(logLineContainer.getLogLine().getHttpMethod().getColor());
+                        nodes.add(httpMethod);
+                    }
                 }
             }
 

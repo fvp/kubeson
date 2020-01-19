@@ -230,7 +230,7 @@ public final class K8SClient {
                 }
 
                 // PODs
-                if (pod.getContainers().size() < 2) {
+                if (!pod.isContainerOnly()) {
                     podItems.add(new SelectorItem(pod, pod.getPodName(), ItemType.POD));
                 }
                 pod.getContainers().forEach((container) -> {
@@ -284,16 +284,8 @@ public final class K8SClient {
         }
     }
 
-    public static List<K8SPod> getPodsByLabel(String labelName, String labelValue) {
-        List<K8SPod> res = new ArrayList<>();
-
-        pods.forEach((uid, pod) -> {
-            if (pod.containsLabel(labelName, labelValue)) {
-                res.add(pod);
-            }
-        });
-
-        return res;
+    public static List<K8SPod> getPods() {
+        return new ArrayList<>(pods.values());
     }
 
     public static void updateConfigMapData(String namespace, String configMapName, String dataName, String content) throws K8SApiException {

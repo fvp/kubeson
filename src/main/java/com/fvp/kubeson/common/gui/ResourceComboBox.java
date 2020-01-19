@@ -135,7 +135,9 @@ public class ResourceComboBox extends ComboBox<SelectorItem> {
                 hBox.setAlignment(Pos.CENTER_LEFT);
                 setGraphic(hBox);
 
-                if (selectorItem.getType() == ItemType.POD || selectorItem.getType() == ItemType.LABEL) {
+                if (selectorItem.getType() == ItemType.POD
+                        || selectorItem.getType() == ItemType.LABEL
+                        || selectorItem.getType() == ItemType.CONTAINER) {
                     HBox buttons = new HBox();
                     buttons.setAlignment(Pos.CENTER_RIGHT);
                     buttons.setSpacing(10);

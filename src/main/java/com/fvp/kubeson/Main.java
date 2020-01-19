@@ -173,7 +173,7 @@ public class Main extends Application {
         // Set Main Window
         String appCss = getClass().getClassLoader().getResource("App.css").toExternalForm();
 
-        root.getStylesheets().add(appCss);
+        scene.getStylesheets().add(appCss);
         root.getChildren().addAll(MainToolbar.draw(), MainTabPane.draw(), preLoadJsonViewerPage());
 
         // Workaround fix JVM bug JDK-8146479

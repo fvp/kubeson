@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.fvp.kubeson.Configuration;
 import com.fvp.kubeson.common.controller.K8SClient;
@@ -20,6 +23,7 @@ import com.fvp.kubeson.common.model.K8SPod;
 import com.fvp.kubeson.common.model.PodLogFeedListener;
 import com.fvp.kubeson.common.model.SelectedItem;
 import com.fvp.kubeson.common.util.TreeList;
+import com.fvp.kubeson.logs.model.HttpMethod;
 import com.fvp.kubeson.logs.model.LogCategory;
 import com.fvp.kubeson.logs.model.LogLevel;
 import com.fvp.kubeson.logs.model.LogLine;
@@ -54,9 +58,9 @@ public class LogTab extends TabBase<LogToolbar> {
 
     private FilteredList<LogLineContainer> filteredLogLines;
 
-    private Map<LogLevel, Boolean> logLevelStates;
+    private Set<LogLevel> logLevelStates;
 
-    private Map<LogCategory, Boolean> logCategoryStates;
+    private Map<LogCategory, Set<HttpMethod>> logCategoryStates;
 
     private PodLogFeedListener podLogFeedListener;
 
@@ -150,6 +154,15 @@ public class LogTab extends TabBase<LogToolbar> {
                                     reset();
                                 }
 
+                                // Wait a little before starting the new pod log stream
+                                try {
+                                    TimeUnit.MILLISECONDS.sleep(500);
+                                } catch (InterruptedException e) {
+                                    Thread.currentThread().interrupt();
+                                    LOGGER.error("Thread interruption received before starting stream for new pod");
+                                    return;
+                                }
+
                                 newPod.addListener(null, getLogSource(selectedItem.getText(), selectedItems.size()), podLogFeedListener, true);
                                 selectedItem.setPod(newPod);
                                 setRunning(true);
@@ -193,9 +206,10 @@ public class LogTab extends TabBase<LogToolbar> {
         this.jsonViewerPane = new JsonViewerPane(this);
         this.tabSplitPane = new SplitPane(this.logListView.draw());
         this.tabSplitPane.setStyle("-fx-background-color: black;-fx-control-inner-background: black;");
+        this.logLevelStates = new HashSet<>();
+        this.logCategoryStates = new HashMap<>();
 
         super.setContent(this.tabSplitPane);
-        initFiltersDefaultState();
     }
 
     private LogSource getLogSource(String name, int size) {
@@ -273,17 +287,6 @@ public class LogTab extends TabBase<LogToolbar> {
         logLines.add(new LogLineContainer(null, new LogLine(text, true), 0, null));
     }
 
-    private void initFiltersDefaultState() {
-        logLevelStates = new HashMap<>();
-        for (LogLevel logLevel : LogLevel.values()) {
-            logLevelStates.put(logLevel, true);
-        }
-        logCategoryStates = new HashMap<>();
-        for (LogCategory logCategory : LogCategory.values()) {
-            logCategoryStates.put(logCategory, true);
-        }
-    }
-
 /*
     private void printNewPodStartingMessage(String podName) {
         Color color = Color.GREEN;
@@ -296,12 +299,37 @@ public class LogTab extends TabBase<LogToolbar> {
     }
 */
 
-    public void filter(Object enumField, boolean state) {
-        if (enumField instanceof LogLevel) {
-            logLevelStates.put((LogLevel) enumField, state);
+    public void filter(Object filterValue, Object subFilterValue, boolean state) {
+        if (filterValue instanceof LogLevel) {
+            if (state) {
+                logLevelStates.add((LogLevel) filterValue);
+            } else {
+                logLevelStates.remove(filterValue);
+            }
         }
-        if (enumField instanceof LogCategory) {
-            logCategoryStates.put((LogCategory) enumField, state);
+        if (filterValue instanceof LogCategory) {
+            if (state) {
+                Set<HttpMethod> httpMethods = logCategoryStates.get(filterValue);
+                if (httpMethods == null) {
+                    httpMethods = new HashSet<>();
+                }
+                if (subFilterValue != null) {
+                    httpMethods.add((HttpMethod) subFilterValue);
+                } else {
+                    httpMethods.clear();
+                }
+                logCategoryStates.put((LogCategory) filterValue, httpMethods);
+            } else {
+                if (subFilterValue != null) {
+                    Set<HttpMethod> httpMethods = logCategoryStates.get(filterValue);
+                    httpMethods.remove(subFilterValue);
+                    if (httpMethods.isEmpty()) {
+                        logCategoryStates.remove(filterValue);
+                    }
+                } else {
+                    logCategoryStates.remove(filterValue);
+                }
+            }
         }
         filter();
     }
@@ -309,13 +337,15 @@ public class LogTab extends TabBase<LogToolbar> {
     private void filter() {
         jsonViewerPane.clear();
         filteredLogLines.setPredicate(logLineContainer -> {
-            if (logLineContainer.getLogLine().getLogLevel() != null && logLevelStates != null && !logLevelStates.get(
+            if (logLineContainer.getLogLine().getLogLevel() != null && !logLevelStates.isEmpty() && !logLevelStates.contains(
                     logLineContainer.getLogLine().getLogLevel())) {
                 return false;
             }
-            if (logLineContainer.getLogLine().getLogCategory() != null && logCategoryStates != null && !logCategoryStates.get(
-                    logLineContainer.getLogLine().getLogCategory())) {
-                return false;
+            if (logLineContainer.getLogLine().getLogCategory() != null && !logCategoryStates.isEmpty()) {
+                Set<HttpMethod> httpMethods = logCategoryStates.get(logLineContainer.getLogLine().getLogCategory());
+                if (httpMethods == null || (!httpMethods.isEmpty() && !httpMethods.contains(logLineContainer.getLogLine().getHttpMethod()))) {
+                    return false;
+                }
             }
             return true;
         });

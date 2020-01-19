@@ -25,6 +25,7 @@ import com.fvp.kubeson.logs.model.LogLine;
 import com.fvp.kubeson.logs.model.LogSource;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
@@ -76,6 +77,16 @@ public class K8SPod {
                 initContainers.add(containerStatus.getName());
             }
         }
+    }
+
+    public boolean usesConfigMap(String configMapName) {
+        for (Volume volume : pod.getSpec().getVolumes()) {
+            if (volume.getConfigMap() != null && volume.getConfigMap().getName().equals(configMapName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public long getFlag() {
@@ -133,6 +144,10 @@ public class K8SPod {
 
     public List<String> getInitContainers() {
         return initContainers;
+    }
+
+    public boolean isContainerOnly() {
+        return getContainers().size() >= 2;
     }
 
     public int getMetricsNodePort() {

@@ -5,12 +5,12 @@ import com.fvp.kubeson.common.gui.TabPillButtonList;
 import javafx.scene.image.Image;
 
 public enum LogCategory implements TabPillButtonList {
-    SERVICE("SERVICE", "icons/service_35x35.png", "icons/service_16x16.png", null),
-    COMMUNICATION_IN("COMMUNICATION", "icons/arrow-up_35x35.png", "icons/arrow-up_16x16.png", "\"flow\":\"IN\""),
-    COMMUNICATION_OUT("COMMUNICATION", "icons/arrow-down_35x35.png", "icons/arrow-down_16x16.png", "\"flow\":\"OUT\""),
-    DATABASE("DATABASE", "icons/database_35x35.png", "icons/database_16x16.png", null),
-    HEALTH("HEALTH", "icons/health_35x35.png", "icons/health_16x16.png", null),
-    CRYPTO("CRYPTO", "icons/crypto_35x35.png", "icons/crypto_16x16.png", null);
+    SERVICE("SERVICE", "icons/service_35x35.png", "icons/service_16x16.png", null, false),
+    COMMUNICATION_IN("COMMUNICATION", "icons/arrow-up_35x35.png", "icons/arrow-up_16x16.png", "\"flow\":\"IN\"", true),
+    COMMUNICATION_OUT("COMMUNICATION", "icons/arrow-down_35x35.png", "icons/arrow-down_16x16.png", "\"flow\":\"OUT\"", true),
+    DATABASE("DATABASE", "icons/database_35x35.png", "icons/database_16x16.png", null, false),
+    HEALTH("HEALTH", "icons/health_35x35.png", "icons/health_16x16.png", null, false),
+    CRYPTO("CRYPTO", "icons/crypto_35x35.png", "icons/crypto_16x16.png", null, false);
 
     private final Image iconBig;
 
@@ -18,11 +18,17 @@ public enum LogCategory implements TabPillButtonList {
 
     private final String name;
 
+    private final String categorySearch;
+
     private final String subCategorySearch;
 
-    LogCategory(String name, String iconPathBig, String iconPathSmall, String subCategorySearch) {
+    private final boolean searchHttpMethod;
+
+    LogCategory(String name, String iconPathBig, String iconPathSmall, String subCategorySearch, boolean searchHttpMethod) {
         this.name = name;
+        this.categorySearch = "\"" + name + "\"";
         this.subCategorySearch = subCategorySearch;
+        this.searchHttpMethod = searchHttpMethod;
         this.iconBig = Main.getImage(iconPathBig);
         this.iconSmall = Main.getImage(iconPathSmall);
     }
@@ -46,8 +52,16 @@ public enum LogCategory implements TabPillButtonList {
         return name;
     }
 
+    public String getCategorySearch() {
+        return categorySearch;
+    }
+
     public String getSubCategorySearch() {
         return subCategorySearch;
+    }
+
+    public boolean searchHttpMethod() {
+        return searchHttpMethod;
     }
 
     public Image getSmallIcon() {
