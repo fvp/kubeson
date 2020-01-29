@@ -497,7 +497,7 @@ public class LogListView {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save Log Export File");
             fileChooser.setInitialFileName(
-                    "kubeson_" + logTab.getText().replace(" ", "-") + "_" + filename + "_" + dateFormatter.format(Instant.now()) + ".log.txt");
+                    "kubeson_" + logTab.getTabLabel().getText().replace(" ", "-") + "_" + filename + "_" + dateFormatter.format(Instant.now()) + ".log.txt");
 
             //Set extension filter for log files
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("LOG files (*.txt)", "*.txt");

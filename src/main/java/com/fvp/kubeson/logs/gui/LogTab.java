@@ -337,11 +337,10 @@ public class LogTab extends TabBase<LogToolbar> {
     private void filter() {
         jsonViewerPane.clear();
         filteredLogLines.setPredicate(logLineContainer -> {
-            if (logLineContainer.getLogLine().getLogLevel() != null && !logLevelStates.isEmpty() && !logLevelStates.contains(
-                    logLineContainer.getLogLine().getLogLevel())) {
+            if (!logLevelStates.isEmpty() && !logLevelStates.contains(logLineContainer.getLogLine().getLogLevel())) {
                 return false;
             }
-            if (logLineContainer.getLogLine().getLogCategory() != null && !logCategoryStates.isEmpty()) {
+            if (!logCategoryStates.isEmpty()) {
                 Set<HttpMethod> httpMethods = logCategoryStates.get(logLineContainer.getLogLine().getLogCategory());
                 if (httpMethods == null || (!httpMethods.isEmpty() && !httpMethods.contains(logLineContainer.getLogLine().getHttpMethod()))) {
                     return false;
@@ -358,7 +357,7 @@ public class LogTab extends TabBase<LogToolbar> {
         TabPane tabPane = super.getTabPane();
         int pos = tabPane.getTabs().indexOf(this) + 1;
 
-        LogTab logTab = new LogTab(selectedItems, getTabLabel(), false);
+        LogTab logTab = new LogTab(selectedItems, getTabLabel().clone(), false);
         tabPane.getTabs().add(pos, logTab);
         tabPane.getSelectionModel().select(pos);
     }

@@ -12,13 +12,19 @@ import com.fvp.kubeson.metrics.gui.MetricsTab;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public final class MainTabPane {
+
+    private static final KeyCombination CTRL_V = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY);
 
     private static TabPane mainTabPane;
 
@@ -68,6 +74,17 @@ public final class MainTabPane {
             event.consume();
         });
         VBox.setVgrow(mainTabPane, Priority.ALWAYS);
+    }
+
+    public static void onGlobalKeyPressedEvent(KeyEvent keyEvent) {
+        if (CTRL_V.match(keyEvent)) {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            if (clipboard.hasFiles()) {
+                for (File file : clipboard.getFiles()) {
+                    createLogTab(file);
+                }
+            }
+        }
     }
 
     public static Parent draw() {

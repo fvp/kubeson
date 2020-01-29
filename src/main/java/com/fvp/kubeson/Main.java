@@ -168,6 +168,7 @@ public class Main extends Application {
             if (SelectedTab != null) {
                 SelectedTab.onGlobalKeyPressedEvent(keyEvent);
             }
+            MainTabPane.onGlobalKeyPressedEvent(keyEvent);
         });
 
         // Set Main Window

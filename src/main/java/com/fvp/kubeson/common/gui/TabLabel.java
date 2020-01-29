@@ -23,6 +23,14 @@ public class TabLabel extends TextFlow {
 
     private List<Color> colors;
 
+    private TabLabel(TabLabel tabLabel) {
+        this(tabLabel.tabType, tabLabel.text);
+        if (!tabLabel.colors.isEmpty()) {
+            this.colors.addAll(tabLabel.colors);
+            this.name.setFill(colors.get(0));
+        }
+    }
+
     public TabLabel(TabType tabType, String text) {
         this.tabType = tabType;
         this.text = text;
@@ -34,6 +42,10 @@ public class TabLabel extends TextFlow {
         name = getText(text, Color.WHITE);
 
         super.getChildren().addAll(openBracket, type, closeBracket, name);
+    }
+
+    public String getText() {
+        return text;
     }
 
     private Text getText(String text, Color color) {
@@ -81,6 +93,11 @@ public class TabLabel extends TextFlow {
         } else {
             removeTextColor(BLUE);
         }
+    }
+
+    @Override
+    public TabLabel clone() {
+        return new TabLabel(this);
     }
 
     @Override
