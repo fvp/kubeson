@@ -28,6 +28,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import javafx.application.Platform;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,11 +44,11 @@ public class K8SPod {
 
     public static final String STATUS_UNKNOWN = "Unknown";
 
-    public static final String APP_LABEL = "app";
-
     private static final Logger LOGGER = LogManager.getLogger();
 
     private Pod pod;
+
+    private String appLabel;
 
     private long flag;
 
@@ -65,6 +66,7 @@ public class K8SPod {
         this.podThreads = Collections.synchronizedMap(new HashMap<>());
         this.containers = new ArrayList<>();
         this.initContainers = new ArrayList<>();
+        this.appLabel = getAppLabel(getLabels());
 
         if (pod.getStatus().getContainerStatuses() != null && pod.getStatus().getContainerStatuses().size() > 1) {
             for (ContainerStatus containerStatus : pod.getStatus().getContainerStatuses()) {
@@ -87,6 +89,17 @@ public class K8SPod {
         }
 
         return false;
+    }
+
+    public static String getAppLabel(Map<String, String> labels) {
+        for (String appLabel : Configuration.KUBERNETES_APP_LABELS) {
+            final String labelValue = labels.get(appLabel);
+            if (!StringUtils.isEmpty(labelValue)) {
+                return labelValue;
+            }
+        }
+
+        return null;
     }
 
     public long getFlag() {
@@ -123,7 +136,7 @@ public class K8SPod {
     }
 
     public String getAppLabel() {
-        return getLabels().get(APP_LABEL);
+        return appLabel;
     }
 
     public String getState() {
@@ -287,7 +300,8 @@ public class K8SPod {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Pod{");
-        sb.append("namespace='").append(getNamespace()).append('\'');
+        sb.append("uid='").append(getUid()).append('\'');
+        sb.append(", namespace='").append(getNamespace()).append('\'');
         sb.append(", podName='").append(getPodName()).append('\'');
         sb.append(", labels=").append(getLabels());
         sb.append(", state='").append(getState()).append('\'');

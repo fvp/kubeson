@@ -135,8 +135,6 @@ public class LogListView {
                 if (idx < logTab.getLogLines().size() - 1) {
                     select(++idx);
                 }
-            } else if (keyEvent.getCode() == KeyCode.T) {
-                //LOGGER.error("Log Line Counter: "+logTab.tmpCounter);
             }
         });
 

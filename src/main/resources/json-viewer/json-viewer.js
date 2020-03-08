@@ -38,7 +38,12 @@ JSONViewer = (function() {
             this._dom.container.innerHTML = "";
             this._dom.container.appendChild(walkEl);
 	    }
-	}		
+	}
+
+    JSONViewer.prototype.clear = function() {
+        this._json = null;
+        this._dom.container.innerHTML = "";
+    }
 
 	/**
 	 * Get container with pre object - this container is used for visualise JSON data.

@@ -1,5 +1,6 @@
 package com.fvp.kubeson.configmap.gui;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
         mainTextField.setStyle(
                 "-fx-background-color: black;-fx-control-inner-background: black;-fx-focus-color: transparent;-fx-faint-focus-color: transparent;");
         mainTextField.setFocusTraversable(false);
-        mainTextField.setEditable(true);
+        mainTextField.setEditable(false);
         mainTextField.setPrefHeight(Region.USE_COMPUTED_SIZE);
         mainTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!StringUtils.isEmpty(oldValue)) {
@@ -108,7 +109,10 @@ public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
     }
 
     Set<String> getConfigMapFiles() {
-        return configMap.getData().keySet();
+        if (configMap.getData() != null) {
+            return configMap.getData().keySet();
+        }
+        return new HashSet<>();
     }
 
     void selectConfigMapDataName(String configFileName) {
@@ -117,8 +121,10 @@ public class ConfigMapTab extends TabBase<ConfigMapToolbar> {
         if (selectedConfigDataContent != null) {
             selectedConfigDataContent = selectedConfigDataContent.replaceAll("\r\n", "\n");
             mainTextField.setText(selectedConfigDataContent);
+            mainTextField.setEditable(true);
         } else {
             mainTextField.setText("");
+            mainTextField.setEditable(false);
         }
         setTextEdited(false);
     }

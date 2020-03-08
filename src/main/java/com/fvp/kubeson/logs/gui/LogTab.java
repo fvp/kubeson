@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.fvp.kubeson.Configuration;
+import com.fvp.kubeson.Main;
 import com.fvp.kubeson.common.controller.K8SClient;
 import com.fvp.kubeson.common.controller.K8SClientListener;
 import com.fvp.kubeson.common.controller.K8SResourceChange;
@@ -98,12 +99,17 @@ public class LogTab extends TabBase<LogToolbar> {
                 line = reader.readLine();
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to read contents of file [" + logFile + "]", e);
+            String message = "Failed to read file \"" + logFile + "\"";
+            LOGGER.error(message, e);
+            Main.showErrorMessage(message, e);
         }
     }
 
     public LogTab(List<SelectedItem> selectedItems, TabLabel tabLabel, boolean showLogsFromStart) {
         super(tabLabel);
+
+        selectedItems.forEach(item -> LOGGER.debug("Starting tab '{}' for {}", tabLabel.getText(), item.getPod()));
+
         this.selectedItems = selectedItems;
         setRunning(true);
 

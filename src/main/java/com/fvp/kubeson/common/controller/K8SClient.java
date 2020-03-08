@@ -195,7 +195,7 @@ public final class K8SClient {
         if (!StringUtils.isEmpty(podAppLabel)) {
             ServiceList serviceList = client.services().list();
             for (Service service : serviceList.getItems()) {
-                String serviceAppLabel = service.getMetadata().getLabels().get(K8SPod.APP_LABEL);
+                String serviceAppLabel = K8SPod.getAppLabel(service.getMetadata().getLabels());
                 if (podAppLabel.equals(serviceAppLabel)) {
                     for (ServicePort servicePort : service.getSpec().getPorts()) {
                         if (servicePort.getNodePort() != null && Configuration.METRICS_KUBERNETES_SERVICE_PORT_NAME.equalsIgnoreCase(servicePort.getName())) {

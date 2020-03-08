@@ -106,8 +106,12 @@ public class K8SConfigMap implements Comparable<K8SConfigMap> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("K8SConfigMap{");
-        sb.append("configMap=").append(configMap);
+        final StringBuilder sb = new StringBuilder("ConfigMap{");
+        sb.append("uid='").append(getUid()).append('\'');
+        sb.append(", namespace='").append(getNamespace()).append('\'');
+        sb.append(", name='").append(getName()).append('\'');
+        sb.append(", resourceVersion='").append(getResourceVersion()).append('\'');
+        sb.append(", labels=").append(getLabels());
         sb.append('}');
         return sb.toString();
     }

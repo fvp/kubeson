@@ -1,5 +1,8 @@
 package com.fvp.kubeson;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javafx.scene.paint.Color;
 
 public final class Configuration {
@@ -11,8 +14,8 @@ public final class Configuration {
     public static final Color SYSTEM_MSG_COLOR = Color.GREEN;
 
     public static final Color[] LOG_SOURCE_COLORS = new Color[]{
-        Color.web("#00bfff"), Color.web("#ff00ff"), Color.web("#94b8b8"), Color.web("#bf00ff"), Color.web("#ffccff"), Color.web("#ff794d"),
-        Color.web("#a3a3c2"), Color.web("#a3a375"), Color.web("#d27979"), Color.web("#6666cc")
+            Color.web("#00bfff"), Color.web("#ff00ff"), Color.web("#94b8b8"), Color.web("#bf00ff"), Color.web("#ffccff"), Color.web("#ff794d"),
+            Color.web("#a3a3c2"), Color.web("#a3a375"), Color.web("#d27979"), Color.web("#6666cc")
     };
 
     public static final int MAX_JSON_FIELD_SIZE = 1200;
@@ -30,6 +33,8 @@ public final class Configuration {
     public static final double LOG_LIST_PANEL_SPLIT = 0.7;
 
     public static final int KUBERNETES_WORKER_WAIT_TIME_MS = 500;
+
+    public static final List<String> KUBERNETES_APP_LABELS = Arrays.asList("app", "app.kubernetes.io/name");
 
     public static final String GITHUB_TOKEN = "aa9e0b0e141df5ccac46f0620fd8a10240ae90e0";
 

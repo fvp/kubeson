@@ -6,7 +6,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class K8SResourceChange<T> {
+
+    private static Logger LOGGER = LogManager.getLogger();
 
     private List<T> resourceAdded;
 
@@ -78,14 +83,17 @@ public class K8SResourceChange<T> {
     }
 
     void resourceAdded(T resource) {
+        LOGGER.debug("Resource added: {} ", resource);
         resourceAdded.add(resource);
     }
 
     void resourceRemoved(T resource) {
+        LOGGER.debug("Resource removed: {} ", resource);
         resourceRemoved.add(resource);
     }
 
     void resourceUpdated(T resource) {
+        LOGGER.debug("Resource updated: {} ", resource);
         resourceUpdated.add(resource);
     }
 
