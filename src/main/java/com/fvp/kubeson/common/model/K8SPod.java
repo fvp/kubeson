@@ -92,10 +92,12 @@ public class K8SPod {
     }
 
     public static String getAppLabel(Map<String, String> labels) {
-        for (String appLabel : Configuration.KUBERNETES_APP_LABELS) {
-            final String labelValue = labels.get(appLabel);
-            if (!StringUtils.isEmpty(labelValue)) {
-                return labelValue;
+        if (labels != null) {
+            for (String appLabel : Configuration.KUBERNETES_APP_LABELS) {
+                final String labelValue = labels.get(appLabel);
+                if (!StringUtils.isEmpty(labelValue)) {
+                    return labelValue;
+                }
             }
         }
 
