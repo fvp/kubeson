@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fvp.kubeson</groupId>
     <artifactId>kubeson</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 
     <properties>
         <!-- If not specified in maven command line with "-Dhg.changeset.id=hash", hash is set to 000000000000 -->
